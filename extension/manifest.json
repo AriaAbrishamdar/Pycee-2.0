@@ -1,0 +1,11 @@
+{
+    "manifest_version": 2,
+    "name": "Pycee 2.0",
+    "description": "Reimplementation of Emillie Thiselton's Pycee",
+    "version": "0.1",
+
+    "content_scripts": [{
+        "matches": ["https://www.online-python.com/*"],
+        "js": ["content.js"]
+    }]
+}
