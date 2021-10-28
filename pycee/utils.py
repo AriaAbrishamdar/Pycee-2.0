@@ -179,7 +179,7 @@ def remove_cache():
     os.execvp("rm", ["rm", "-f"] + files)
     # after execv vp finishes executing rm it exits
 
-def return_answers(so_answers, pycee_hint, pydoc_answer, args):
+def return_answers(so_answers, pycee_hint, pydoc_answer, args, colored: bool):
     """ Hide the logic of printing answers from the usage example """
 
     result = ""
@@ -189,9 +189,13 @@ def return_answers(so_answers, pycee_hint, pydoc_answer, args):
         if not so_answers:
             result += "Pycee couldn't find answers for the error on Stackoverflow.\n"
         else:
+            renderer = Renderer()
             for i, answer in enumerate(so_answers):
                 result += "Solution {}:\n".format(i + 1)
-                result += answer
+                if colored:
+                    result += str(renderer.render(answer))
+                else:
+                    result += answer
                 result += "\n"
 
     if args.show_pycee_hint:
