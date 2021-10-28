@@ -1,8 +1,7 @@
 from pycee.answers import get_answers
 from pycee.errors import handle_error
-from pycee.utils import parse_args_by_file_name, remove_cache, print_answers
+from pycee.utils import parse_args_by_file_name, remove_cache, return_answers
 from pycee.inspection import get_error_info_from_traceback
-from pprint import pprint
 
 def main():
 
@@ -20,7 +19,8 @@ IndexError: list index out of range"""
 
     query, pycee_hint, pydoc_answer = handle_error(error_info, args)
     so_answers, _ = get_answers(query, error_info, args)
-    print_answers(so_answers, pycee_hint, pydoc_answer, args)
+    solution = return_answers(so_answers, pycee_hint, pydoc_answer, args)
+    print(solution)
 
 if __name__ == "__main__":
     main()
