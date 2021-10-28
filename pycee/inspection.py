@@ -9,12 +9,8 @@ from typing import Union
 
 from .utils import BUILTINS
 
-
-def get_error_info_from_traceback(traceback):
-    """Summarize all error information we have available from traceback."""
-
-    if not traceback:
-        return "Great! Your code seems to have no errors."
+def get_error_detail(traceback):
+    """summarize all error information we have available."""
 
     error_message = get_error_message(traceback)
     error_type = get_error_type(error_message)
@@ -33,6 +29,34 @@ def get_error_info_from_traceback(traceback):
         "code": code,
         "offending_line": offending_line,
     }
+
+    return error_info
+
+def get_error_info_from_traceback(traceback):
+    """Get error information from traceback."""
+
+    if not traceback:
+        return "Great! Your code seems to have no errors."
+
+    error_info = get_error_detail(traceback)
+
+    # error_message = get_error_message(traceback)
+    # error_type = get_error_type(error_message)
+    # error_line = get_error_line(traceback)
+    # file_name = get_file_name(traceback)
+    # code = get_code(file_name)
+    # offending_line = get_offending_line(error_line, code)
+    #
+    # error_info = {
+    #     "success_message": "Success",
+    #     "traceback": traceback,
+    #     "message": error_message,
+    #     "type": error_type,
+    #     "line": error_line,
+    #     "file": file_name,
+    #     "code": code,
+    #     "offending_line": offending_line,
+    # }
 
     if not all(error_info.values()):
         error_info["success_message"] = "Aborting. Some data about the error is missing:"
