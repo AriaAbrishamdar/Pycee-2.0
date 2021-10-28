@@ -179,6 +179,29 @@ def remove_cache():
     os.execvp("rm", ["rm", "-f"] + files)
     # after execv vp finishes executing rm it exits
 
+def return_answers(so_answers, pycee_hint, pydoc_answer, args):
+    """ Hide the logic of printing answers from the usage example """
+
+    result = ""
+
+    if args.show_so_answer:
+
+        if not so_answers:
+            result += "Pycee couldn't find answers for the error on Stackoverflow.\n"
+        else:
+            for i, answer in enumerate(so_answers):
+                result += "Solution {}:\n".format(i + 1)
+                result += answer
+                result += "\n"
+
+    if args.show_pycee_hint:
+        result += "Pycee hint:\n"
+        if not pycee_hint:
+            result += "Pycee does not have an hint for fixing this error on its manuals."
+        else:
+            result += pycee_hint
+
+    return result
 
 def print_answers(so_answers, pycee_hint, pydoc_answer, args):
     """ Hide the logic of printing answers from the usage example """
