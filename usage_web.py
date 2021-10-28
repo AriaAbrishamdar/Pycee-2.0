@@ -3,7 +3,7 @@ from pycee.errors import handle_error
 from pycee.utils import parse_args_by_file_name, remove_cache, return_answers
 from pycee.inspection import get_error_info_from_traceback
 
-def main(traceback):
+def main(traceback: str, colored=False):
 
     error_info = get_error_info_from_traceback(traceback)
 
@@ -14,7 +14,7 @@ def main(traceback):
 
     query, pycee_hint, pydoc_answer = handle_error(error_info, args)
     so_answers, _ = get_answers(query, error_info, args)
-    solution = return_answers(so_answers, pycee_hint, pydoc_answer, args)
+    solution = return_answers(so_answers, pycee_hint, pydoc_answer, args, colored)
 
     return solution
 
@@ -27,4 +27,4 @@ def main(traceback):
 #     print(arr[0])
 # IndexError: list index out of range"""
 #
-#     print(main(_traceback))
+#     print(main(_traceback, colored=True))
