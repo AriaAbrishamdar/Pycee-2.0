@@ -16,7 +16,10 @@ def get_error_detail(traceback, file_path=""):
     error_type = get_error_type(error_message)
     error_line = get_error_line(traceback)
     file_name = get_file_name(traceback)
-    code = get_code(str(file_path))
+    if file_path:
+        code = get_code(str(file_path))
+    else:
+        code = get_code(str(file_name))
     offending_line = get_offending_line(error_line, code)
 
     error_info = {
