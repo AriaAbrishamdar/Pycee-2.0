@@ -1,23 +1,5 @@
-
-function clicked() {
-
-    document.getElementById("wrap").innerHTML = "";
-    check_for_changes();
-}
-
-function check_for_changes() {
-
-    if (document.getElementById("wrap").innerHTML == "") {
-        setTimeout(check_for_changes, 10);
-        return;
-    }
-
-    get_text_from_python(document.getElementById("wrap").innerHTML);
-}
-
 function wait_for_run_button() {
 
-    document.getElementById("wrap").innerHTML = '<p id="term-output">' + output_text + '</p>';
     var element = document.getElementById("run-btn");
     if (!element) {
         setTimeout(wait_for_run_button, 10);
@@ -26,9 +8,31 @@ function wait_for_run_button() {
     document.getElementById("run-btn").addEventListener("click", clicked);
 }
 
-document.getElementById("run-btn").addEventListener("click", clicked);
 
-function get_text_from_python(text) {
+function clicked() {
+
+    check_for_changes();
+}
+
+
+function check_for_changes() {
+
+    var content = document.getElementById("wrap").innerText;
+
+    var start_index = content.indexOf("Traceback (most recent call last):");
+    var end_index = content.indexOf("** Process exited");
+
+    if ((start_index == -1) || (end_index == -1)) {
+        setTimeout(check_for_changes, 10);
+        return;
+    }
+
+    var final_content = content.substr(start_index, end_index-start_index-2);
+    send_text_to_server(final_content);
+}
+
+
+function send_text_to_server(text) {
 
     var request = new XMLHttpRequest();
 
@@ -42,16 +46,20 @@ function get_text_from_python(text) {
     var msg = { text };
     var msgjson = JSON.stringify(msg);
     request.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
-    console.log(text);
-    console.log(msgjson);
+    // console.log(text);
+    // console.log(msgjson);
     request.send(msgjson);
 }
 
+
 function set_output_text(text) {
-  
-    output_text = text;
-    document.getElementById("wrap").innerHTML = '<p id="term-output">' + output_text + '</p>';
+
+    var output_text = text;
+    var current_content = document.getElementById("wrap").innerHTML;
+    document.getElementById("wrap").innerHTML =  current_content +'<p id="term-output">\n\n===============================\n' + output_text + '</p>';
     wait_for_run_button()
 }
 
-output_text = "";
+
+
+wait_for_run_button()
