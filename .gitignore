@@ -16,3 +16,6 @@ pycee/*cache.bak
 pycee/*cache.dat
 pycee/*cache.dir
 *.py.cache
+
+# ignore created .py files for web
+web received content/
