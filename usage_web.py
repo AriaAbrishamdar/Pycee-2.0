@@ -11,19 +11,16 @@ def main(_traceback: str, _code: str, _colored=False):
     # Get file_name from traceback
     file_name = get_file_name(_traceback)
 
-    # Create file path
-    file_path = os.path.join("web received content", str(file_name))
-
     # Create a .py with specified file_name and write the related code to it.
     if file_name:
-        f = open("{}".format(file_path), "w")
+        f = open("{}".format(file_name), "w")
         f.write(_code)
         f.close()
     else:
         return "Missed file name."
 
     # Get error information
-    error_info = get_error_info_from_traceback(_traceback, file_path)
+    error_info = get_error_info_from_traceback(_traceback)
 
     args = parse_args_by_file_name([error_info['file']])
 
@@ -35,7 +32,7 @@ def main(_traceback: str, _code: str, _colored=False):
     solution = return_answers(so_answers, pycee_hint, pydoc_answer, args, _colored)
 
     # Remove created .py
-    os.remove(file_path)
+    os.remove(file_name)
 
     return solution
 
