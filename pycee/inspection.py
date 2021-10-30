@@ -9,14 +9,17 @@ from typing import Union
 
 from .utils import BUILTINS
 
-def get_error_detail(traceback):
+def get_error_detail(traceback, _code=""):
     """summarize all error information we have available."""
 
     error_message = get_error_message(traceback)
     error_type = get_error_type(error_message)
     error_line = get_error_line(traceback)
     file_name = get_file_name(traceback)
-    code = get_code(str(file_name))
+    if _code:
+        code = _code
+    else:
+        code = get_code(str(file_name))
     offending_line = get_offending_line(error_line, code)
 
     error_info = {
@@ -33,13 +36,13 @@ def get_error_detail(traceback):
     return error_info
 
 
-def get_error_info_from_traceback(traceback):
+def get_error_info_from_traceback(traceback, code):
     """Get error information from traceback."""
 
     if not traceback:
         return "Great! Your code seems to have no errors."
 
-    error_info = get_error_detail(traceback)
+    error_info = get_error_detail(traceback, code)
 
     if not all(error_info.values()):
         error_info["success_message"] = "Aborting. Some data about the error is missing:"
