@@ -10,7 +10,7 @@ def main(_traceback: str, _code: str, _colored=False):
     error_info = get_error_info_from_traceback(_traceback, _code)
 
     # Create parseargs
-    args = parse_args()
+    args = parse_args(args=[error_info['file']])
 
     if args.rm_cache:
         remove_cache()
