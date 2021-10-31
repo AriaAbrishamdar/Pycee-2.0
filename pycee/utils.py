@@ -7,6 +7,7 @@ import pathlib
 import sys
 
 from consolemd import Renderer
+from termcolor import colored
 
 def parse_args(args=sys.argv[1:]):
     """A simple argparse to be used when pycee is executed as a script."""
@@ -141,7 +142,8 @@ def print_answers(so_answers, pycee_hint, pydoc_answer, args):
             renderer = Renderer()
             for i, answer in enumerate(so_answers):
                 print(f"Solution {i+1}:\n")
-                renderer.render(answer)
+                #renderer.render(answer)
+                print(colored(answer, 'yellow'))
                 print("\n")
 
     if args.show_pycee_hint:
