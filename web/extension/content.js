@@ -17,6 +17,8 @@ function clicked() {
 
 function check_for_changes() {
 
+
+
     var content = document.getElementById("wrap").innerText;
 
     var start_index = content.indexOf("Traceback (most recent call last):");
@@ -27,12 +29,15 @@ function check_for_changes() {
         return;
     }
 
-    var final_content = content.substr(start_index, end_index-start_index-2);
-    send_text_to_server(final_content);
+    var editor = document.getElementById("editor");
+    var code = editor.getElementsByClassName("ace_layer ace_text-layer")[0].innerText;
+
+    var error_message = content.substr(start_index, end_index-start_index-2);
+    send_text_to_server(error_message, code);
 }
 
 
-function send_text_to_server(text) {
+function send_text_to_server(error, code) {
 
     var request = new XMLHttpRequest();
 
@@ -43,11 +48,9 @@ function send_text_to_server(text) {
      }
 
     request.open("POST", 'https://ariaabrishamdar.pythonanywhere.com/', true);
-    var msg = { text };
+    var msg = { error, code };
     var msgjson = JSON.stringify(msg);
     request.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
-    // console.log(text);
-    // console.log(msgjson);
     request.send(msgjson);
 }
 
@@ -57,6 +60,7 @@ function set_output_text(text) {
     var output_text = text;
     var current_content = document.getElementById("wrap").innerHTML;
     document.getElementById("wrap").innerHTML =  current_content +'<p id="term-output">\n\n===============================\n' + output_text + '</p>';
+
     wait_for_run_button()
 }
 
