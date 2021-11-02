@@ -103,7 +103,7 @@ def remove_cache():
     os.execvp("rm", ["rm", "-f"] + files)
     # after execv vp finishes executing rm it exits
 
-def return_answers(so_answers, args, colored: bool):
+def return_answers(so_answers, args):
     """ Hide the logic of printing answers from the usage example """
 
     result = ""
@@ -112,32 +112,14 @@ def return_answers(so_answers, args, colored: bool):
 
         if not so_answers:
             result += "Pycee couldn't find answers for the error on Stackoverflow.\n"
+
         else:
-            renderer = Renderer()
             for i, answer in enumerate(so_answers):
                 result += "Solution {}:\n".format(i + 1)
-                if colored:
-                    result += str(renderer.render(answer))
-                else:
-                    result += answer
+                result += answer
                 result += "\n"
 
     return result
-
-def print_answers(so_answers, args):
-    """ Hide the logic of printing answers from the usage example """
-
-    if args.show_so_answer:
-
-        if not so_answers:
-            print("Pycee couldn't find answers for the error on Stackoverflow.\n")
-        else:
-            renderer = Renderer()
-            for i, answer in enumerate(so_answers):
-                print(f"Solution {i+1}:\n")
-                renderer.render(answer)
-                # print(answer)
-                print("\n")
 
 
 # These are some constants we use throughout the codebase

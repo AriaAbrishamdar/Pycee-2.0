@@ -3,6 +3,9 @@ from pycee.errors import handle_error
 from pycee.utils import parse_args, remove_cache, return_answers
 from pycee.inspection import get_error_info_from_traceback
 
+from consolemd import Renderer
+
+
 
 def main(_traceback: str, _code: str, _colored=False):
 
@@ -17,9 +20,15 @@ def main(_traceback: str, _code: str, _colored=False):
 
     query = handle_error(error_info, args)
     so_answers, _ = get_answers(query, error_info, args)
-    solution = return_answers(so_answers, args, _colored)
+    solution = return_answers(so_answers, args)
 
-    return solution
+    # Check _colored param
+    renderer = Renderer()
+    if _colored:
+        return renderer.render(solution)
+
+    else:
+        return print(solution)
 
 
 # Uncomment to test main function
@@ -34,4 +43,4 @@ def main(_traceback: str, _code: str, _colored=False):
 # if arr[0]:
 #     print(arr[0])"""
 #
-#     print(main(_traceback, _code))
+#     main(_traceback, _code, _colored=True)
