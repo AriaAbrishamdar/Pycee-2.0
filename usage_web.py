@@ -17,7 +17,7 @@ def main(_traceback: str, _code: str, _colored=False):
 
     query = handle_error(error_info, args)
     so_answers, _ = get_answers(query, error_info, args)
-    solution = return_answers(so_answers, pycee_hint, pydoc_answer, args, _colored)
+    solution = return_answers(so_answers, args, _colored)
 
     return solution
 

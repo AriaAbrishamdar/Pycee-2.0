@@ -27,7 +27,7 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
 
     questions = answers = None
 
-    # TODO: @marcelofa, implement a decent optional cache feature
+    # TODO: implement a decent optional cache feature
     if cmd_args.cache:
         questions, answers = ask_cache(query, error_info, cmd_args)
     else:

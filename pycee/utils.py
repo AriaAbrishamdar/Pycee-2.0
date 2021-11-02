@@ -103,7 +103,7 @@ def remove_cache():
     os.execvp("rm", ["rm", "-f"] + files)
     # after execv vp finishes executing rm it exits
 
-def return_answers(so_answers, pycee_hint, pydoc_answer, args, colored: bool):
+def return_answers(so_answers, args, colored: bool):
     """ Hide the logic of printing answers from the usage example """
 
     result = ""
@@ -122,16 +122,9 @@ def return_answers(so_answers, pycee_hint, pydoc_answer, args, colored: bool):
                     result += answer
                 result += "\n"
 
-    if args.show_pycee_hint:
-        result += "Pycee hint:\n"
-        if not pycee_hint:
-            result += "Pycee does not have an hint for fixing this error on its manuals."
-        else:
-            result += pycee_hint
-
     return result
 
-def print_answers(so_answers, pycee_hint, pydoc_answer, args):
+def print_answers(so_answers, args):
     """ Hide the logic of printing answers from the usage example """
 
     if args.show_so_answer:
@@ -145,13 +138,6 @@ def print_answers(so_answers, pycee_hint, pydoc_answer, args):
                 renderer.render(answer)
                 # print(answer)
                 print("\n")
-
-    if args.show_pycee_hint:
-        print("Pycee hint:\n")
-        if not pycee_hint:
-            print("Pycee does not have an hint for fixing this error on its manuals.")
-        else:
-            print(pycee_hint)
 
 
 # These are some constants we use throughout the codebase
