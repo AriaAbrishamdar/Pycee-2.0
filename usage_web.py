@@ -19,8 +19,8 @@ def main(_traceback: str, _code: str, _colored=False):
         remove_cache()
 
     query = handle_error(error_info, args)
-    so_answers, _ = get_answers(query, error_info, args)
-    solution = return_answers(so_answers, args)
+    so_answers, _, links = get_answers(query, error_info, args)
+    solution = return_answers(so_answers, links, args)
 
     # Check _colored param
     renderer = Renderer()

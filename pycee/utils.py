@@ -6,7 +6,6 @@ import os
 import pathlib
 import sys
 
-from consolemd import Renderer
 # from termcolor import colored
 
 def parse_args(args=sys.argv[1:]):
