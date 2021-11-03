@@ -6,8 +6,7 @@ import os
 import pathlib
 import sys
 
-from consolemd import Renderer
-from termcolor import colored
+# from termcolor import colored
 
 def parse_args(args=sys.argv[1:]):
     """A simple argparse to be used when pycee is executed as a script."""
@@ -103,7 +102,7 @@ def remove_cache():
     os.execvp("rm", ["rm", "-f"] + files)
     # after execv vp finishes executing rm it exits
 
-def return_answers(so_answers, pycee_hint, pydoc_answer, args, colored: bool):
+def return_answers(so_answers, links, args):
     """ Hide the logic of printing answers from the usage example """
 
     result = ""
@@ -112,46 +111,18 @@ def return_answers(so_answers, pycee_hint, pydoc_answer, args, colored: bool):
 
         if not so_answers:
             result += "Pycee couldn't find answers for the error on Stackoverflow.\n"
+
         else:
-            renderer = Renderer()
             for i, answer in enumerate(so_answers):
                 result += "Solution {}:\n".format(i + 1)
-                if colored:
-                    result += str(renderer.render(answer))
-                else:
-                    result += answer
+                result += answer
                 result += "\n"
 
-    if args.show_pycee_hint:
-        result += "Pycee hint:\n"
-        if not pycee_hint:
-            result += "Pycee does not have an hint for fixing this error on its manuals."
-        else:
-            result += pycee_hint
+    result += "Links:\n"
+    for i in range(len(links)):
+        result += "{}. {}\n".format(i + 1, links[i])
 
     return result
-
-def print_answers(so_answers, pycee_hint, pydoc_answer, args):
-    """ Hide the logic of printing answers from the usage example """
-
-    if args.show_so_answer:
-
-        if not so_answers:
-            print("Pycee couldn't find answers for the error on Stackoverflow.\n")
-        else:
-            renderer = Renderer()
-            for i, answer in enumerate(so_answers):
-                print(f"Solution {i+1}:\n")
-                #renderer.render(answer)
-                print(colored(answer, 'yellow'))
-                print("\n")
-
-    if args.show_pycee_hint:
-        print("Pycee hint:\n")
-        if not pycee_hint:
-            print("Pycee does not have an hint for fixing this error on its manuals.")
-        else:
-            print(pycee_hint)
 
 
 # These are some constants we use throughout the codebase

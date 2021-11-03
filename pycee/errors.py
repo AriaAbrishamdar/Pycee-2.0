@@ -17,18 +17,12 @@ def handle_error(error_info: dict, cmd_args: Namespace) -> tuple:
     """Process the incoming error as needed and outputs three possible answer.
     output:
     query: an URL containing an stackoverflow query about the error.
-    pycee_hint: A possible answer for the error produced locally.
-    TODO: pydoc_answer: A possible answer extracted from the builtin help.
     """
 
-    pydoc_answer = None
-    pycee_hint = None
     error_type = error_info["type"]
     error_message = error_info["message"]
-    error_line = error_info["line"]
 
     if error_type == "SyntaxError":
-        pycee_hint = handle_syntax_error_locally(error_message, error_line)
         query = handle_syntax_error(error_message)
 
     elif error_type == "TabError":
@@ -38,29 +32,24 @@ def handle_error(error_info: dict, cmd_args: Namespace) -> tuple:
         query = handle_indentation_error(error_message)
 
     elif error_type == "IndexError":
-        pycee_hint = handle_index_error_locally(error_message, error_line)
         query = handle_index_error(error_message)
 
     elif error_type == "ModuleNotFoundError":
-        pycee_hint = handle_module_error_locally(error_message)
         query = handle_module_not_found_error(error_message)
 
     elif error_type == "TypeError":
         query = handle_type_error(error_message)
 
     elif error_type == "KeyError":
-        pycee_hint = handle_key_error_locally(error_message, error_info["offending_line"])
         query = handle_key_error(error_message)
 
     elif error_type == "AttributeError":
         query = handle_attr_error(error_message)
 
     elif error_type == "NameError":
-        pycee_hint = handle_name_error_locally(error_message)
         query = handle_name_error(error_message)
 
     elif error_type == "ZeroDivisionError":
-        pycee_hint = handle_zero_division_error_locally(error_line)
         query = handle_zero_division_error(error_message)
 
     else:
@@ -72,32 +61,7 @@ def handle_error(error_info: dict, cmd_args: Namespace) -> tuple:
         print(query)
         exit()
 
-    return query, pycee_hint, pydoc_answer
-
-
-def handle_key_error_locally(error_message: str, offending_line: str) -> str:
-    """When KeyError is handled locally we remind the user that the problematic
-    dict should have a key with a certain value."""
-
-    missing_key = error_message.split(SINGLE_SPACE_CHAR, maxsplit=1)[-1]
-
-    # this first regex will match part of the pattern of a dict acess: a_dict[some_value]
-    dict_acess_regex = r"[A-Za-z_]\w*\["
-    # this second regex will match only the identifier of the problematic dictionaries
-    identifier_regex = r"[A-Za-z_]\w*"
-
-    acesses = re.findall(dict_acess_regex, offending_line)
-    indentifiers = [re.findall(identifier_regex, a)[0] for a in acesses]
-
-    # when offending line deals with only the same problematic dictionary
-    # we can assert a better error message
-    # else when offending line contains different dictionaries with same missing key,
-    # we cannot determine which dict originated the error.
-    target = indentifiers[0] if len(set(indentifiers)) == 1 else None
-
-    hint = define_hint_for_key_error_locally(target, missing_key, indentifiers)
-
-    return hint
+    return query
 
 
 def handle_key_error(error_message: str) -> str:
@@ -105,15 +69,6 @@ def handle_key_error(error_message: str) -> str:
 
     error = slugify(error_message, separator="+")
     return url_for_error(error)
-
-
-def handle_name_error_locally(error_message: str) -> str:
-    """When NameError is handled locally we ask if the user
-    accidentally forget to define a variable or misspelled its name."""
-
-    missing_name = get_quoted_words(error_message)[0]
-    hint = HINT_MESSAGES["NameError"].replace("<missing_name>", missing_name)
-    return hint
 
 
 def handle_name_error(error_message: str) -> str:
@@ -130,38 +85,12 @@ def handle_name_error(error_message: str) -> str:
     return url_for_error(remove_quoted_words(error_message))
 
 
-def handle_module_error_locally(error_message: str) -> str:
-    """Ask if the user has passed a valid module name or
-    if it's installable though pip"""
-
-    missing_module = get_quoted_words(error_message)[0]
-    hint = HINT_MESSAGES["ModuleNotFoundError"].replace("<missing_module>", missing_module)
-    return hint
-
-
 def handle_module_not_found_error(error_message: str) -> str:
     """Handling ModuleNoutFoundError is quite simple as most of well known packages
     already have questions on ModuleNotFoundError solved at stackoverflow"""
 
     message = error_message.replace("ModuleNotFoundError", EMPTY_STRING)
     return url_for_error(message)
-
-
-def handle_index_error_locally(error_message: str, error_line: int) -> str:
-    """Process an IndexError locally."""
-
-    sequence = None
-    if "list" in error_message:
-        sequence = "list"
-    elif "tuple" in error_message:
-        sequence = "tuple"
-    elif "range object" in error_message:
-        sequence = "range object"
-
-    hint = HINT_MESSAGES["IndexError"].replace("<sequence>", sequence)
-    hint = hint.replace("<line>", str(error_line))
-
-    return hint
 
 
 def handle_index_error(message: str) -> str:
@@ -185,16 +114,6 @@ def handle_indentation_error(error_message: str) -> str:
 
     message = remove_exception_from_error_message(error_message)
     return url_for_error(message)
-
-
-def handle_syntax_error_locally(error_message: str, error_line: int) -> Union[str, None]:
-    """ Process a SyntaxError locally """
-
-    answer = None
-    if error_message == "SyntaxError: invalid syntax":
-        answer = HINT_MESSAGES["SyntaxError"].replace("<line>", str(error_line))
-
-    return answer
 
 
 def handle_syntax_error(error_message: str) -> Union[str, None]:
@@ -237,15 +156,6 @@ def handle_zero_division_error(error_message: str) -> str:
 
     message = remove_exception_from_error_message(error_message)
     return url_for_error(message)
-
-
-def handle_zero_division_error_locally(error_line: int) -> str:
-    """Process an ZeroDivisionError"""
-    hint = HINT_MESSAGES["ZeroDivisionError"].replace("<line>", str(error_line))
-    return hint
-
-
-# Helper methods below
 
 
 def set_pagesize(query: str, pagesize: int) -> str:
