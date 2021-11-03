@@ -103,7 +103,7 @@ def remove_cache():
     os.execvp("rm", ["rm", "-f"] + files)
     # after execv vp finishes executing rm it exits
 
-def return_answers(so_answers, args):
+def return_answers(so_answers, links, args):
     """ Hide the logic of printing answers from the usage example """
 
     result = ""
@@ -118,6 +118,10 @@ def return_answers(so_answers, args):
                 result += "Solution {}:\n".format(i + 1)
                 result += answer
                 result += "\n"
+
+    result += "Links:\n"
+    for i in range(len(links)):
+        result += "{}. {}\n".format(i + 1, links[i])
 
     return result
 

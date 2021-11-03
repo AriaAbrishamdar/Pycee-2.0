@@ -15,8 +15,8 @@ def main():
 
     error_info = get_error_info(args.file_name)
     query = handle_error(error_info, args)
-    so_answers, _ = get_answers(query, error_info, args)
-    result = return_answers(so_answers, args)
+    so_answers, _, links = get_answers(query, error_info, args)
+    result = return_answers(so_answers, links, args)
 
     # Using renderer to show answers
     renderer = Renderer()

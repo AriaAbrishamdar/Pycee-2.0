@@ -25,13 +25,13 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
     3- TODO: Summarize long answers and make it ready to output to the user;
     """
 
-    questions = answers = None
+    questions = answers = links = None
 
     # TODO: implement a decent optional cache feature
     if cmd_args.cache:
-        questions, answers = ask_cache(query, error_info, cmd_args)
+        questions, answers, links = ask_cache(query, error_info, cmd_args)
     else:
-        questions, answers = ask_live(query, error_info, cmd_args)
+        questions, answers, links = ask_live(query, error_info, cmd_args)
 
     sorted_answers = sorted(answers, key=attrgetter("score"), reverse=True)[: cmd_args.n_answers]
     summarized_answers = []
@@ -41,7 +41,7 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
         # TODO: summarize long answers
         summarized_answers.append(markdown_body)
 
-    return summarized_answers, sorted_answers
+    return summarized_answers, sorted_answers, links
 
 
 def _ask_stackoverflow(query: str) -> Tuple[Question, None]:
@@ -52,13 +52,15 @@ def _ask_stackoverflow(query: str) -> Tuple[Question, None]:
 
     response_json = requests.get(query).json()
     questions = []
+    links = []
 
     for question in response_json["items"]:
 
         if question["is_answered"]:
             questions.append(Question(id=str(question["question_id"]), has_accepted="accepted_answer_id" in question))
+            links.append(question["link"])
 
-    return tuple(questions)
+    return tuple(questions), links
 
 
 def _ask_google(error_message: str, n_questions: int) -> Tuple[Question, None]:
@@ -76,7 +78,7 @@ def _ask_google(error_message: str, n_questions: int) -> Tuple[Question, None]:
     # [1:-1] slicing can remove these slashes
     questions_id = [re.findall(r"/\d+/", q)[0][1:-1] for q in questions_url]
 
-    return tuple(Question(id=qid, has_accepted=None) for qid in questions_id)
+    return tuple(Question(id=qid, has_accepted=None) for qid in questions_id), questions_url
 
 
 def _get_answer_content(questions: Tuple[Question]) -> Tuple[Answer, None]:
@@ -140,29 +142,29 @@ def _get_answer_content(questions: Tuple[Question]) -> Tuple[Answer, None]:
 def ask_cache(query, error_info, cmd_args):
     """ Retrieve questions and answers from cached local files """
 
-    questions = None
+    questions = links = None
     if cmd_args.google_search_only:
-        questions = _cached_ask_google(error_info["message"], cmd_args.n_questions)
+        questions, links = _cached_ask_google(error_info["message"], cmd_args.n_questions)
     else:
         # force a google search if stackoverflow didn't provide any answer
-        questions = _cached_ask_stackoverflow(query) or _cached_ask_google(error_info["message"], cmd_args.n_questions)
+        questions, links = _cached_ask_stackoverflow(query) or _cached_ask_google(error_info["message"], cmd_args.n_questions)
 
     answers = _cached_answer_content(questions)
-    return questions, answers
+    return questions, answers, links
 
 
 def ask_live(query, error_info, cmd_args):
     """ Retrieve questions and answers by doing actual http requests """
 
-    questions = None
+    questions = links = None
     if cmd_args.google_search_only:
-        questions = _ask_google(error_info["message"], cmd_args.n_questions)
+        questions, links = _ask_google(error_info["message"], cmd_args.n_questions)
     else:
         # force a google search if stackoverflow didn't provide any answer
-        questions = _ask_stackoverflow(query) or _ask_google(error_info["message"], cmd_args.n_questions)
+        questions, links = _ask_stackoverflow(query) or _ask_google(error_info["message"], cmd_args.n_questions)
 
     answers = _get_answer_content(questions)
-    return questions, answers
+    return questions, answers, links
 
 
 @filecache(MONTH)
