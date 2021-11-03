@@ -7,13 +7,16 @@ from consolemd import Renderer
 
 
 
-def main(_traceback: str, _code: str, _colored=False):
+def main(_traceback: str, _code: str, _n_answers=0, _colored=False):
 
     # Get error information
     error_info = get_error_info_from_traceback(_traceback, _code)
 
     # Create parseargs
-    args = parse_args(args=[error_info['file']])
+    if _n_answers:
+        args = parse_args(args=['-a', str(_n_answers), error_info['file']])
+    else:
+        args = parse_args(args=[error_info['file']])
 
     if args.rm_cache:
         remove_cache()
@@ -35,12 +38,10 @@ def main(_traceback: str, _code: str, _colored=False):
 # if __name__ == "__main__":
 #
 #     _traceback = """Traceback (most recent call last):
-#   File "ur_name.py", line 2, in <module>
+#   File "example_code.py", line 1, in <module>
 #     print(arr[0])
-# IndexError: list index out of range"""
+# NameError: name 'arr' is not defined"""
 #
-#     _code = """arr = []
-# if arr[0]:
-#     print(arr[0])"""
+#     _code = """print(arr[0])"""
 #
-#     main(_traceback, _code, _colored=True)
+#     main(_traceback, _code, _n_answers=2, _colored=True)
