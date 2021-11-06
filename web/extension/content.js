@@ -11,7 +11,6 @@ function wait_for_run_button() {
 
 function clicked() {
     setTimeout(check_for_changes, 1000);
-    //check_for_changes();
 }
 
 
@@ -59,7 +58,7 @@ function set_output_text(text) {
 
     var output_text = text;
     var current_content = document.getElementById("wrap").innerHTML;
-    document.getElementById("wrap").innerHTML =  current_content +'<p id="term-output">\n\n===============================\n\n' + output_text + '</p>';
+    document.getElementById("wrap").innerHTML =  current_content +'<p id="term-output">\n\n' + output_text + '</p>';
 
     wait_for_run_button()
 }
