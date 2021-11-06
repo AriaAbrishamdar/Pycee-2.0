@@ -36,3 +36,4 @@ toml==0.10.2
 urllib3
 virtualenv==20.2.2
 termcolor
+markdown
