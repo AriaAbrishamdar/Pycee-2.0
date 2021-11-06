@@ -2,6 +2,7 @@ from pycee.answers import get_answers
 from pycee.errors import handle_error
 from pycee.utils import parse_args, remove_cache, return_answers
 from pycee.inspection import get_error_info_from_traceback
+import markdown
 
 from consolemd import Renderer
 
@@ -25,13 +26,17 @@ def main(_traceback: str, _code: str, _n_answers=0, _colored=False):
     so_answers, _, links = get_answers(query, error_info, args)
     solution = return_answers(so_answers, links, args)
 
+
     # Check _colored param
     renderer = Renderer()
     if _colored:
         return renderer.render(solution)
 
     else:
-        return print(solution)
+        #solution = "==========================================\n\n==========================================\n\n" + solution
+        solution = markdown.markdown(solution)
+        solution = solution.replace("<p>",  '<p style="font-size:18px;">')
+        return solution
 
 
 # Uncomment to test main function
