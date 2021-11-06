@@ -102,6 +102,7 @@ def remove_cache():
     os.execvp("rm", ["rm", "-f"] + files)
     # after execv vp finishes executing rm it exits
 
+
 def return_answers(so_answers, links, args):
     """ Hide the logic of printing answers from the usage example """
 
@@ -114,11 +115,36 @@ def return_answers(so_answers, links, args):
 
         else:
             for i, answer in enumerate(so_answers):
-                result += "\n\n**==========================================**\n\n**Solution {}:**\n\n".format(i + 1)
+                result += "\n\n**{}**\n\n**Solution {}:**\n\n".format('=' * 40 ,i + 1)
                 result += answer
                 result += "\n"
 
-    result += "\n\n**==========================================**\n\n"
+    result += "\n\n**{}**\n\n".format('=' * 40)
+    result += "**Links:**\n"
+
+    for i in range(len(links)):
+        result += "{}. {}\n".format(i + 1, links[i])
+
+    return result
+
+
+def return_answers_for_web(so_answers, links, args):
+    """ Hide the logic of printing answers from the usage example """
+
+    result = ""
+
+    if args.show_so_answer:
+
+        if not so_answers:
+            result += "Pycee couldn't find answers for the error on Stackoverflow.\n"
+
+        else:
+            for i, answer in enumerate(so_answers):
+                result += "\n\n**{}**\n\n**Solution {}:**\n\n".format('=' * 40 ,i + 1)
+                result += answer
+                result += "\n"
+
+    result += "\n\n**{}**\n\n".format('=' * 40)
     result += "**Links:**\n"
     for i in range(len(links)):
 

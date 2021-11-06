@@ -89,7 +89,7 @@ def get_traceback_from_script(file_path: str) -> Union[str, None]:
         the traceback as a string
     """
 
-    command = "python " + str(file_path)
+    command = "python3 " + str(file_path)
     subprocess = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
     stderr = subprocess.stderr.read()
     subprocess.kill()
