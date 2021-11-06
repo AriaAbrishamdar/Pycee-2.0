@@ -10,29 +10,33 @@ function wait_for_run_button() {
 
 
 function clicked() {
-    setTimeout(check_for_changes, 1000);
+    check_for_changes()
 }
 
 
 function check_for_changes() {
 
-
-
     var content = document.getElementById("wrap").innerText;
 
-    var start_index = content.indexOf("Traceback (most recent call last):");
-    var end_index = content.indexOf("** Process exited");
+    var list = document.querySelectorAll(".warning,.error");
 
-    if ((start_index == -1) || (end_index == -1)) {
-        setTimeout(check_for_changes, 10);
-        return;
+    var error_message = "";
+
+    if (list.length <= 0) {
+      setTimeout(check_for_changes, 100);
+      return;
     }
+
+    for (let i = 0; i < list.length; i++) {
+      error_message += list[i].innerText;
+    }
+
 
     var editor = document.getElementById("editor");
     var code = editor.getElementsByClassName("ace_layer ace_text-layer")[0].innerText;
 
-    var error_message = content.substr(start_index, end_index-start_index-2);
-    send_text_to_server(error_message, code);
+
+    setTimeout(send_text_to_server.bind(null, error_message, code), 250);
 }
 
 
