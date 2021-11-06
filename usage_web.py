@@ -1,6 +1,6 @@
 from pycee.answers import get_answers
 from pycee.errors import handle_error
-from pycee.utils import parse_args, remove_cache, return_answers
+from pycee.utils import parse_args, remove_cache, return_answers_for_web
 from pycee.inspection import get_error_info_from_traceback
 import markdown
 
@@ -24,7 +24,7 @@ def main(_traceback: str, _code: str, _n_answers=0, _colored=False):
 
     query = handle_error(error_info, args)
     so_answers, _, links = get_answers(query, error_info, args)
-    solution = return_answers(so_answers, links, args)
+    solution = return_answers_for_web(so_answers, links, args)
 
 
     # Check _colored param
