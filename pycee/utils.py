@@ -114,13 +114,15 @@ def return_answers(so_answers, links, args):
 
         else:
             for i, answer in enumerate(so_answers):
-                result += "Solution {}:\n".format(i + 1)
+                result += "\n\n**==========================================**\n\n**Solution {}:**\n\n".format(i + 1)
                 result += answer
                 result += "\n"
 
-    result += "Links:\n"
+    result += "\n\n**==========================================**\n\n"
+    result += "**Links:**\n"
     for i in range(len(links)):
-        result += "{}. {}\n".format(i + 1, links[i])
+
+        result += '\n{}. <a href="{}">{}</a>\n'.format(i + 1, links[i], links[i])
 
     return result
 
