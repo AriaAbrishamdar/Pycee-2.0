@@ -18,5 +18,5 @@ pip3 install -r requirements.txt
 ```
 * Run a test
 ```
-python usage.py example_code.py
+python application.py test_code.py
 ```
