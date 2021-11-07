@@ -5,7 +5,7 @@ from argparse import Namespace
 
 from slugify import slugify
 
-from .utils import HINT_MESSAGES, SEARCH_URL
+from .utils import SEARCH_URL
 from .utils import (
     SINGLE_QUOTE_CHAR,
     SINGLE_SPACE_CHAR,
@@ -206,22 +206,3 @@ def remove_quoted_words(error_message: str) -> str:
     output: "NameError: name is not defined"
     """
     return re.sub(r"'.*?'\s", EMPTY_STRING, error_message)
-
-
-def define_hint_for_key_error_locally(target, missing_key, indentifiers):
-    hint = HINT_MESSAGES["KeyError"]
-    if target:
-        hint = hint.replace(
-            "<initial_error>",
-            f"Dictionary '{target}' does not have a key with value {missing_key}.",
-        )
-        hint = hint.replace("<key>", missing_key)
-    else:
-        formatted_identifiers = ", ".join(indentifiers)
-        hint = hint.replace(
-            "<initial_error>",
-            f"One of dictionaries {formatted_identifiers} does not have a key with value {missing_key}.",
-        )
-        hint = hint.replace("<key>", missing_key)
-
-    return hint
