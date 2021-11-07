@@ -22,12 +22,10 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
     2- If stackoverflow API search engine couldn't find questions, ask Google instead
     3- For each question, get the most voted and accepted answers
     4- Sort answers by vote count and limit them
-    3- TODO: Summarize long answers and make it ready to output to the user;
     """
 
     questions = answers = links = None
 
-    # TODO: implement a decent optional cache feature
     if cmd_args.cache:
         questions, answers, links = ask_cache(query, error_info, cmd_args)
     else:
@@ -38,7 +36,6 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
 
     for ans in sorted_answers:
         markdown_body = html2text(ans.body)
-        # TODO: summarize long answers
         summarized_answers.append(markdown_body)
 
     return summarized_answers, sorted_answers, links
@@ -140,7 +137,7 @@ def _get_answer_content(questions: Tuple[Question]) -> Tuple[Answer, None]:
 
 
 def ask_cache(query, error_info, cmd_args):
-    """ Retrieve questions and answers from cached local files """
+    """ Retrieve questions and answers and links from cached local files """
 
     questions = links = None
     if cmd_args.google_search_only:
@@ -154,7 +151,7 @@ def ask_cache(query, error_info, cmd_args):
 
 
 def ask_live(query, error_info, cmd_args):
-    """ Retrieve questions and answers by doing actual http requests """
+    """ Retrieve questions and answers and links by doing actual http requests """
 
     questions = links = None
     if cmd_args.google_search_only:

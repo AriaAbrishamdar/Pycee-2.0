@@ -7,7 +7,6 @@ import markdown
 from consolemd import Renderer
 
 
-
 def main(_traceback: str, _code: str, _n_answers=0, _colored=False):
 
     # Get error information
@@ -33,7 +32,7 @@ def main(_traceback: str, _code: str, _n_answers=0, _colored=False):
         return renderer.render(solution)
 
     else:
-        #solution = "==========================================\n\n==========================================\n\n" + solution
+        #solution = "{}\n\n{}\n\n".format(40*'=', 40*'=') + solution
         solution = markdown.markdown(solution)
         solution = solution.replace("<p>",  '<p style="font-size:18px;">')
         return solution
