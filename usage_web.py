@@ -1,7 +1,7 @@
 from pycee.answers import get_answers
 from pycee.errors import handle_error
 from pycee.utils import parse_args, remove_cache, return_answers_for_web
-from pycee.inspection import get_error_info_from_traceback
+from pycee.control import get_error_info_from_traceback
 import markdown
 
 from consolemd import Renderer
