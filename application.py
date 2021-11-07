@@ -1,6 +1,6 @@
 from pycee.answers import get_answers
 from pycee.errors import handle_error
-from pycee.inspection import get_error_info
+from pycee.control import get_error_info
 from pycee.utils import parse_args, remove_cache, return_answers
 
 from consolemd import Renderer
