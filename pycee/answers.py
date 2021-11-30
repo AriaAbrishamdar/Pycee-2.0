@@ -94,10 +94,11 @@ def _get_answer_content(questions: Tuple[Question]) -> Tuple[Answer, None]:
         # get most voted answer
         # first item because results are retrieved sorted by score
         most_voted = items[0]
-        
+
         answers.append(
             Answer(
                 id=str(most_voted["answer_id"]),
+                question_id=most_voted["question_id"],
                 accepted=most_voted["is_accepted"],
                 score=most_voted["score"],
                 body=most_voted["body"],
@@ -122,6 +123,7 @@ def _get_answer_content(questions: Tuple[Question]) -> Tuple[Answer, None]:
         answers.append(
             Answer(
                 id=str(accepted["answer_id"]),
+                question_id=accepted["question_id"],
                 accepted=True,
                 score=accepted["score"],
                 body=accepted["body"],

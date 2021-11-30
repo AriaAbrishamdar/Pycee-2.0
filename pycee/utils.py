@@ -169,4 +169,4 @@ BUILTINS = dir(sys.modules["builtins"])
 
 # namedtuples to represent simple objects
 Question = namedtuple("Question", ["id", "has_accepted"])
-Answer = namedtuple("Answer", ["id", "accepted", "score", "body", "author", "profile_image"])
+Answer = namedtuple("Answer", ["id", "question_id", "accepted", "score", "body", "author", "profile_image"])
