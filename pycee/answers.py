@@ -24,19 +24,21 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
     4- Sort answers by vote count and limit them
     """
 
-    questions = answers = links = None
+    questions = answers = None
 
     if cmd_args.cache:
-        questions, answers, links = ask_cache(query, error_info, cmd_args)
+        questions, answers = ask_cache(query, error_info, cmd_args)
     else:
-        questions, answers, links = ask_live(query, error_info, cmd_args)
+        questions, answers = ask_live(query, error_info, cmd_args)
 
     sorted_answers = sorted(answers, key=attrgetter("score"), reverse=True)[: cmd_args.n_answers]
     summarized_answers = []
+    links = []
 
     for ans in sorted_answers:
         markdown_body = html2text(ans.body)
         summarized_answers.append(markdown_body)
+        links.append(ans.url)
 
     return summarized_answers, sorted_answers, links
 
@@ -49,15 +51,12 @@ def _ask_stackoverflow(query: str) -> Tuple[Question, None]:
 
     response_json = requests.get(query).json()
     questions = []
-    links = []
 
     for question in response_json["items"]:
-
         if question["is_answered"]:
-            questions.append(Question(id=str(question["question_id"]), has_accepted="accepted_answer_id" in question))
-            links.append(question["link"])
+            questions.append(Question(id=str(question["question_id"]), has_accepted="accepted_answer_id", question_link=str(question["link"])))
 
-    return tuple(questions), links
+    return tuple(questions)
 
 
 def _ask_google(error_message: str, n_questions: int) -> Tuple[Question, None]:
@@ -73,10 +72,9 @@ def _ask_google(error_message: str, n_questions: int) -> Tuple[Question, None]:
     # parse questions id from each url path
     # re.findall will return something like '/666/' so the
     # [1:-1] slicing can remove these slashes
-    questions_id = [re.findall(r"/\d+/", q)[0][1:-1] for q in questions_url]
+    # questions_id = [re.findall(r"/\d+/", q)[0][1:-1] for q in questions_url]
 
-    return tuple(Question(id=qid, has_accepted=None) for qid in questions_id), questions_url
-
+    return tuple(Question(id=re.findall(r"/\d+/", q)[0][1:-1], has_accepted=None, question_link=q) for q in questions_url)
 
 def _get_answer_content(questions: Tuple[Question]) -> Tuple[Answer, None]:
     """Retrieve the most voted and the accepted answers for each question"""
@@ -94,11 +92,12 @@ def _get_answer_content(questions: Tuple[Question]) -> Tuple[Answer, None]:
         # get most voted answer
         # first item because results are retrieved sorted by score
         most_voted = items[0]
+        most_voted_url = "{}/{}#{}".format(str(question.question_link), most_voted["answer_id"], most_voted["answer_id"])
 
         answers.append(
             Answer(
                 id=str(most_voted["answer_id"]),
-                question_id=most_voted["question_id"],
+                url=most_voted_url,
                 accepted=most_voted["is_accepted"],
                 score=most_voted["score"],
                 body=most_voted["body"],
@@ -120,10 +119,11 @@ def _get_answer_content(questions: Tuple[Question]) -> Tuple[Answer, None]:
             continue
 
         accepted = filtered[0]
+        accepted_url = "{qlink}/{id}#{id}".format(question.question_link, accepted["answer_id"], accepted["answer_id"])
         answers.append(
             Answer(
                 id=str(accepted["answer_id"]),
-                question_id=accepted["question_id"],
+                url=accepted_url,
                 accepted=True,
                 score=accepted["score"],
                 body=accepted["body"],
@@ -141,29 +141,29 @@ def _get_answer_content(questions: Tuple[Question]) -> Tuple[Answer, None]:
 def ask_cache(query, error_info, cmd_args):
     """ Retrieve questions and answers and links from cached local files """
 
-    questions = links = None
+    questions = None
     if cmd_args.google_search_only:
-        questions, links = _cached_ask_google(error_info["message"], cmd_args.n_questions)
+        questions = _cached_ask_google(error_info["message"], cmd_args.n_questions)
     else:
         # force a google search if stackoverflow didn't provide any answer
-        questions, links = _cached_ask_stackoverflow(query) or _cached_ask_google(error_info["message"], cmd_args.n_questions)
+        questions = _cached_ask_stackoverflow(query) or _cached_ask_google(error_info["message"], cmd_args.n_questions)
 
     answers = _cached_answer_content(questions)
-    return questions, answers, links
+    return questions, answers
 
 
 def ask_live(query, error_info, cmd_args):
     """ Retrieve questions and answers and links by doing actual http requests """
 
-    questions = links = None
+    questions = None
     if cmd_args.google_search_only:
-        questions, links = _ask_google(error_info["message"], cmd_args.n_questions)
+        questions = _ask_google(error_info["message"], cmd_args.n_questions)
     else:
         # force a google search if stackoverflow didn't provide any answer
-        questions, links = _ask_stackoverflow(query) or _ask_google(error_info["message"], cmd_args.n_questions)
+        questions = _ask_stackoverflow(query) or _ask_google(error_info["message"], cmd_args.n_questions)
 
     answers = _get_answer_content(questions)
-    return questions, answers, links
+    return questions, answers
 
 
 @filecache(MONTH)

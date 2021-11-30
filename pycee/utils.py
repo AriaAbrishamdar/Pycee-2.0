@@ -168,5 +168,5 @@ ANSWERS_URL = BASE_URL + "/questions/<id>/answers?site=stackoverflow" + "&filter
 BUILTINS = dir(sys.modules["builtins"])
 
 # namedtuples to represent simple objects
-Question = namedtuple("Question", ["id", "has_accepted"])
-Answer = namedtuple("Answer", ["id", "question_id", "accepted", "score", "body", "author", "profile_image"])
+Question = namedtuple("Question", ["id", "has_accepted", "question_link"])
+Answer = namedtuple("Answer", ["id", "url", "accepted", "score", "body", "author", "profile_image"])
