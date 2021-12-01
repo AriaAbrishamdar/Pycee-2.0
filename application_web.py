@@ -3,8 +3,27 @@ from pycee.errors import handle_error
 from pycee.utils import parse_args, remove_cache, return_answers_for_web
 from pycee.control import get_error_info_from_traceback
 import markdown
+import json
 
 from consolemd import Renderer
+
+def create_JSON(so_answers: list, links: list):
+    """
+    Change the data format of solutions and their links to JSON
+    :return: JSON
+    """
+    data_set = {
+        "items": []
+    }
+
+    for i in range(0, len(so_answers), 1):
+        data = {
+            "body": so_answers[i],
+            "URL": links[i]
+        }
+        data_set["items"].append(data)
+
+    return json.dumps(data_set)
 
 
 def main(_traceback: str, _code: str, _n_answers=0, _colored=False):
