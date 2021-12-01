@@ -26,7 +26,7 @@ def create_JSON(so_answers: list, links: list):
     return json.dumps(data_set)
 
 
-def main(_traceback: str, _code: str, _n_answers=0, _colored=False):
+def main(_traceback: str, _code: str, _n_answers=0, _colored=False, _json=True):
 
     # Get error information
     error_info = get_error_info_from_traceback(_traceback, _code)
@@ -42,19 +42,24 @@ def main(_traceback: str, _code: str, _n_answers=0, _colored=False):
 
     query = handle_error(error_info, args)
     so_answers, _, links = get_answers(query, error_info, args)
-    solution = return_answers_for_web(so_answers, links, args)
 
-
-    # Check _colored param
-    renderer = Renderer()
-    if _colored:
-        return renderer.render(solution)
+    if _json:
+        return create_JSON(so_answers, links)
 
     else:
-        #solution = "{}\n\n{}\n\n".format(40*'=', 40*'=') + solution
-        solution = markdown.markdown(solution)
-        solution = solution.replace("<p>",  '<p style="font-size:18px;">')
-        return solution
+        solution = return_answers_for_web(so_answers, links, args)
+
+
+        # Check _colored param
+        renderer = Renderer()
+        if _colored:
+            return renderer.render(solution)
+
+        else:
+            #solution = "{}\n\n{}\n\n".format(40*'=', 40*'=') + solution
+            solution = markdown.markdown(solution)
+            solution = solution.replace("<p>",  '<p style="font-size:18px;">')
+            return solution
 
 
 # Uncomment to test main function
@@ -67,4 +72,4 @@ def main(_traceback: str, _code: str, _n_answers=0, _colored=False):
 #
 #     _code = """print(arr[0])"""
 #
-#     main(_traceback, _code, _n_answers=2, _colored=True)
+#     print(main(_traceback, _code, _n_answers=2, _colored=True, _json=True))
