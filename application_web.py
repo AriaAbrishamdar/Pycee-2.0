@@ -20,11 +20,7 @@ def create_JSON(so_answers: list, links: list):
         
         ans = ""
         ans += "\n\n**{}**\n\n**Solution {}:**\n\n".format('=' * 40 ,i + 1)
-
-        # Append answer
-        for a in so_answers[i]:
-            ans += str(a)
-
+        ans += so_answers[i]
         ans += "\n"
         ans = markdown.markdown(ans)
         ans = ans.replace("<p>",  '<p style="font-size:18px;">')
