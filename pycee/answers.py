@@ -15,6 +15,32 @@ import requests
 from .utils import ANSWERS_URL
 from .utils import Question, Answer
 
+from sumy.parsers.plaintext import PlaintextParser
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.summarizers.luhn import LuhnSummarizer
+
+
+def getSummary(sentences):
+    """
+    Summarize the answer.
+
+    :param sentences: answer
+    :return: summarized answer
+    """
+    #convert sentences to single string -> not good for code
+    parser = PlaintextParser.from_string(sentences, Tokenizer("english"))
+
+    #get length of answer(s)
+    # numSentences = len(parser.document.sentences)
+
+    #halve length and round up
+    length = 5
+
+    summariser = LuhnSummarizer()
+    summary = summariser(parser.document, length)
+
+    return summary
+
 
 def get_answers(query, error_info: dict, cmd_args: Namespace):
     """This coordinate the answer aquisition process. It goes like this:
@@ -37,7 +63,8 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
 
     for ans in sorted_answers:
         markdown_body = html2text(ans.body)
-        summarized_answers.append(markdown_body)
+        # summarized_answers.append(markdown_body)
+        summarized_answers.append(getSummary(markdown_body))
         links.append(ans.url)
 
     return summarized_answers, sorted_answers, links
