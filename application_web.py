@@ -17,9 +17,21 @@ def create_JSON(so_answers: list, links: list):
     }
 
     for i in range(0, len(so_answers), 1):
+        
+        ans = ""
+        ans += "\n\n**{}**\n\n**Solution {}:**\n\n".format('=' * 40 ,i + 1)
+        ans += so_answers[i]
+        ans += "\n"
+        ans = markdown.markdown(ans)
+        ans = ans.replace("<p>",  '<p style="font-size:18px;">')
+
+        link = '<p><b>\nLink: <a href="{}">{}</a>\n\n\n</b></p>'.format(links[i], links[i])
+        link = link.replace("<p>",  '<p style="font-size:18px;">')
+        
+        
         data = {
-            "body": so_answers[i],
-            "URL": links[i]
+            "body": ans,
+            "URL": link
         }
         data_set["items"].append(data)
 
