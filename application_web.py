@@ -28,7 +28,7 @@ def get_updownvote(solution_link : str ,error_type : str):
     return read_json(solution_link, error_type)
 
 
-def create_JSON(so_answers: list, links: list):
+def create_JSON(so_answers: list, links: list, error_info: dict):
     """
     Change the data format of solutions and their links to JSON
     :return: JSON
@@ -55,7 +55,8 @@ def create_JSON(so_answers: list, links: list):
         
         data = {
             "body": ans,
-            "URL": link
+            "URL": link,
+            "error_type": error_info["type"],
         }
         data_set["items"].append(data)
 
@@ -80,7 +81,7 @@ def main(_traceback: str, _code: str, _n_answers=0, _colored=False, _json=True):
     so_answers, _, links = get_answers(query, error_info, args)
 
     if _json:
-        return create_JSON(so_answers, links)
+        return create_JSON(so_answers, links, error_info)
 
     else:
         solution = return_answers_for_web(so_answers, links, args)
