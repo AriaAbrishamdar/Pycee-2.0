@@ -14,6 +14,7 @@ import requests
 
 from .utils import ANSWERS_URL
 from .utils import Question, Answer
+from vote.updownvote import read_json
 
 from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
@@ -42,12 +43,28 @@ def getSummary(sentences):
     return summary
 
 
+def sort_by_updownvote(answers: tuple, error_info: dict):
+    """
+    Sort the answers by updownvote data.
+    :return: sorted answer list
+    """
+    scores = []
+
+    for ans in answers:
+        scores.append(read_json(ans.url, error_info["type"]))
+
+    sorted_answers = [x for _, x in sorted(zip(scores, answers), reverse=True)]
+
+    return sorted_answers
+
+
 def get_answers(query, error_info: dict, cmd_args: Namespace):
     """This coordinate the answer aquisition process. It goes like this:
     1- Use the query to check stackexchange API for related questions
     2- If stackoverflow API search engine couldn't find questions, ask Google instead
     3- For each question, get the most voted and accepted answers
     4- Sort answers by vote count and limit them
+    5- Sort answers by local vote (updownvote)
     """
 
     questions = answers = None
@@ -58,6 +75,8 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
         questions, answers = ask_live(query, error_info, cmd_args)
 
     sorted_answers = sorted(answers, key=attrgetter("score"), reverse=True)[: cmd_args.n_answers]
+    sorted_answers = sort_by_updownvote(sorted_answers, error_info)
+
     summarized_answers = []
     links = []
 

@@ -44,7 +44,7 @@ def write_json(new_data: dict):
         if flag != 1:
             file_data["data"].append(new_data)
             file.seek(0)
-            json.dump(file_data, file, indent=4)
+            json.dump(file_data, file, indent=2)
 
 
 def read_json(solution_link: str, error_type:str):
