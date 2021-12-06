@@ -38,7 +38,7 @@ def create_JSON(so_answers: list, links: list, error_info: dict):
     }
 
     for i in range(0, len(so_answers), 1):
-        
+
         ans = ""
         ans += "\n\n**{}**\n\n**Solution {}:**\n\n".format('=' * 40 ,i + 1)
 
@@ -51,12 +51,14 @@ def create_JSON(so_answers: list, links: list, error_info: dict):
 
         link = '<p><b>\nLink: <a href="{}">{}</a>\n\n\n</b></p>'.format(links[i], links[i])
         link = link.replace("<p>",  '<p style="font-size:18px;">')
-        
-        
+
+
         data = {
             "body": ans,
-            "URL": link,
+            "link_text": link,
+            "link": links[i],
             "error_type": error_info["type"],
+            "score": get_updownvote(link , error_info["type"]),
         }
         data_set["items"].append(data)
 
