@@ -165,7 +165,7 @@ def _get_answer_content(questions: Tuple[Question]) -> Tuple[Answer, None]:
             continue
 
         accepted = filtered[0]
-        accepted_url = "{qlink}/{id}#{id}".format(question.question_link, accepted["answer_id"], accepted["answer_id"])
+        accepted_url = "{}/{}#{}".format(question.question_link, accepted["answer_id"], accepted["answer_id"])
         answers.append(
             Answer(
                 id=str(accepted["answer_id"]),
