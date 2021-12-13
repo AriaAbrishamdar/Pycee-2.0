@@ -53,7 +53,7 @@ def sort_by_updownvote(answers: tuple, error_info: dict):
     for ans in answers:
         scores.append(read_json(ans.url, error_info["type"]))
 
-    sorted_answers = [x for _, x in sorted(zip(scores, answers), reverse=True)]
+    sorted_answers = [x for _, x in sorted(zip(scores, answers), key=lambda x: x[0], reverse=True)]
 
     return sorted_answers
 
@@ -74,8 +74,8 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
     else:
         questions, answers = ask_live(query, error_info, cmd_args)
 
-    sorted_answers = sorted(answers, key=attrgetter("score"), reverse=True)[: cmd_args.n_answers]
-    sorted_answers = sort_by_updownvote(sorted_answers, error_info)
+    sorted_answers = sorted(answers, key=attrgetter("score"), reverse=True)
+    sorted_answers = sort_by_updownvote(sorted_answers, error_info)[: cmd_args.n_answers]
 
     summarized_answers = []
     links = []
