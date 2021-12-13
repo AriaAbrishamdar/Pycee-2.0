@@ -111,4 +111,4 @@ def main(_traceback: str, _code: str, _n_answers=0, _colored=False, _json=True):
 #
 #     _code = """print(arr[0])"""
 #
-#     print(main(_traceback, _code, _n_answers=2, _colored=True, _json=True))
+#     print(main(_traceback, _code, _n_answers=10, _colored=True, _json=True))
