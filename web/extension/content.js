@@ -10,7 +10,17 @@ function wait_for_run_button() {
 
 
 function clicked() {
-    check_for_changes()
+
+    chrome.storage.sync.get(['enabled'], function(result) {
+        if (typeof result.enabled !== 'undefined') {
+            if (result.enabled == false)
+                wait_for_run_button();
+            else
+                check_for_changes();
+        }
+        else
+            check_for_changes();
+    });
 }
 
 function upvote(index) {
@@ -168,12 +178,20 @@ function send_text_to_server(error, code) {
             }
         }
     }
-    var type = "find_solutions";
-    request.open("POST", 'https://ariaabrishamdar.pythonanywhere.com/', true);
-    var msg = { type, error, code };
-    var msgjson = JSON.stringify(msg);
-    request.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
-    request.send(msgjson);
+
+    var number_of_solutions = 3;
+
+    chrome.storage.sync.get(['solutions'], function(result) {
+        if (typeof result.solutions !== 'undefined')
+            number_of_solutions = result.solutions;
+
+        var type = "find_solutions";
+        request.open("POST", 'https://ariaabrishamdar.pythonanywhere.com/', true);
+        var msg = { type, error, code, number_of_solutions };
+        var msgjson = JSON.stringify(msg);
+        request.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+        request.send(msgjson);
+    });
 }
 
 
