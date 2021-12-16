@@ -43,6 +43,42 @@ def getSummary(sentences):
     return summary
 
 
+def identify_code(the_answer):
+    """
+    Identify the positions of codes in the answer.
+    :return: positions list
+    """
+
+    start_tag = "<code>"
+    end_tag = "</code>"
+
+    # list to hold code positions
+    pos = []
+
+    if start_tag in the_answer:
+        for i, c in enumerate(the_answer):
+            if c == '<':
+                if start_tag == the_answer[i:i + len(start_tag)]:
+                    pos.append([])
+                    pos[len(pos) - 1].append(i + len(start_tag))
+
+                    if the_answer[i - 5:i] == "<pre>":
+                        pos[len(pos) - 1].append(1)
+
+                    else:
+                        pos[len(pos) - 1].append(0)
+
+                if end_tag == the_answer[i:i + len(end_tag)]:
+                    pos[len(pos) - 1].append(i)
+
+        for i in range(0, len(pos)):
+            tmp = pos[i][2]
+            pos[i][2] = pos[i][1]
+            pos[i][1] = tmp
+
+    return pos
+
+
 def sort_by_updownvote(answers: tuple, error_info: dict):
     """
     Sort the answers by updownvote data.
@@ -81,6 +117,7 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
     links = []
 
     for ans in sorted_answers:
+        pos = identify_code(ans.body)
         markdown_body = html2text(ans.body)
         # summarized_answers.append(markdown_body)
         summarized_answers.append(getSummary(markdown_body))
@@ -121,6 +158,7 @@ def _ask_google(error_message: str, n_questions: int) -> Tuple[Question, None]:
     # questions_id = [re.findall(r"/\d+/", q)[0][1:-1] for q in questions_url]
 
     return tuple(Question(id=re.findall(r"/\d+/", q)[0][1:-1], has_accepted=None, question_link=q) for q in questions_url)
+
 
 def _get_answer_content(questions: Tuple[Question]) -> Tuple[Answer, None]:
     """Retrieve the most voted and the accepted answers for each question"""
