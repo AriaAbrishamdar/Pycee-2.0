@@ -16,7 +16,8 @@ def home():
     if (type == "find_solutions"):
         traceback = str(request.json["error"])
         code = str(request.json["code"])
-        result = application_web.main(_traceback=traceback, _code=code, _colored=False)
+        number_of_solutions = str(request.json["number_of_solutions"])
+        result = application_web.main(_traceback=traceback, _code=code, _colored=False,  _n_answers=number_of_solutions)
         return result
 
     """upvote - downvote"""
