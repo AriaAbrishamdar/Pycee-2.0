@@ -21,8 +21,8 @@ def parse_args(args=sys.argv[1:]):
         "-q",
         metavar="--n-questions",
         type=int,
-        choices=range(1, 6),
-        default=3,
+        choices=range(1, 20),
+        default=20,
         dest="n_questions",
         help="Number of questions to retrieve from Stackoverflow",
     )
@@ -30,8 +30,8 @@ def parse_args(args=sys.argv[1:]):
         "-a",
         metavar="--n-answers",
         type=int,
-        choices=range(1, 5),
-        default=3,
+        choices=range(1, 20),
+        default=20,
         dest="n_answers",
         help="Number of answers to display",
     )
@@ -116,7 +116,9 @@ def return_answers(so_answers, links, args):
         else:
             for i, answer in enumerate(so_answers):
                 result += "\n\n**{}**\n\n**Solution {}:**\n\n".format('=' * 40 ,i + 1)
-                result += answer
+                for ans in answer:
+                    result += str(ans)
+                # result += answer
                 result += "\n"
 
     result += "\n\n**{}**\n\n".format('=' * 40)
@@ -141,7 +143,9 @@ def return_answers_for_web(so_answers, links, args):
         else:
             for i, answer in enumerate(so_answers):
                 result += "\n\n**{}**\n\n**Solution {}:**\n\n".format('=' * 40 ,i + 1)
-                result += answer
+                for ans in answer:
+                    result += str(ans)
+                # result += str(answer)
                 result += "\n"
 
     result += "\n\n**{}**\n\n".format('=' * 40)

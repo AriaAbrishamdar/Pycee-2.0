@@ -14,6 +14,136 @@ import requests
 
 from .utils import ANSWERS_URL
 from .utils import Question, Answer
+from vote.updownvote import read_json
+
+from sumy.parsers.plaintext import PlaintextParser
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.summarizers.luhn import LuhnSummarizer
+import markdown
+
+
+def getSummary(sentences):
+    """
+    Summarize the answer.
+
+    :param sentences: answer
+    :return: summarized answer
+    """
+    #convert sentences to single string -> not good for code
+    parser = PlaintextParser.from_string(sentences, Tokenizer("english"))
+
+    #get length of answer(s)
+    # numSentences = len(parser.document.sentences)
+
+    #halve length and round up
+    length = 5
+
+    summariser = LuhnSummarizer()
+    summary = summariser(parser.document, length)
+
+    return summary
+
+
+def identify_code(the_answer):
+    """
+    Identify the positions of codes in the answer.
+    example: <pre><code>example_code</code></pre> -> (12, 24, 1)
+    :return: positions list
+    """
+
+    start_tag = "<code>"
+    end_tag = "</code>"
+
+    # list to hold code positions
+    pos = []
+
+    if start_tag in the_answer:
+        for i, c in enumerate(the_answer):
+            if c == '<':
+                if start_tag == the_answer[i:i + len(start_tag)]:
+                    pos.append([])
+                    pos[len(pos) - 1].append(i + len(start_tag))
+
+                    if the_answer[i - 5:i] == "<pre>":
+                        pos[len(pos) - 1].append(1)
+
+                    else:
+                        pos[len(pos) - 1].append(0)
+
+                if end_tag == the_answer[i:i + len(end_tag)]:
+                    pos[len(pos) - 1].append(i)
+
+        for i in range(0, len(pos)):
+            tmp = pos[i][2]
+            pos[i][2] = pos[i][1]
+            pos[i][1] = tmp
+
+    pre_pos = []
+    for p in pos:
+        if p[2] == 1:
+            pre_pos.append(p)
+
+    return pre_pos
+
+
+def separate_code(the_answer, pos):
+    """
+    Separate the code and text in the answer.
+    :return: list of codes and texts
+    """
+
+    code = []
+    text = []
+    index = 0
+
+    for p in pos:
+        start, end = p[0], p[1]
+        for i, c in enumerate(the_answer):
+            if i == start:
+                text.append([the_answer[index:i - len("<pre><code>")]])
+                code.append([the_answer[i - len("<pre><code>"):end + len("</code></pre>")]])
+                index = end + len("</code></pre>")
+                break
+
+    if len(pos) > 0 and len(the_answer) > pos[-1][1]:
+        index = pos[-1][1] + len("</code></pre>")
+        text.append([the_answer[index:]])
+
+    return code, text
+
+
+def replace_code(codes, summarized_texts):
+    """
+    Join the codes to the summarized texts
+    and make a string as a answer.
+    :return: Answer as a string
+    """
+    # TODO: who is first ?
+
+    the_answer = ["" * i for i in range(0, len(codes) + len(summarized_texts))]
+
+    for i in range(0, len(summarized_texts)):
+        the_answer[2 * i] = summarized_texts[i]
+
+    for i in range(0, len(codes)):
+        the_answer[2 * i + 1] = codes[i]
+
+    return the_answer
+
+
+def sort_by_updownvote(answers: tuple, error_info: dict):
+    """
+    Sort the answers by updownvote data.
+    :return: sorted answer list
+    """
+    scores = []
+
+    for ans in answers:
+        scores.append(read_json(ans.url, error_info["type"]))
+
+    sorted_answers = [x for _, x in sorted(zip(scores, answers), key=lambda x: x[0], reverse=True)]
+
+    return sorted_answers
 
 
 def get_answers(query, error_info: dict, cmd_args: Namespace):
@@ -22,6 +152,8 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
     2- If stackoverflow API search engine couldn't find questions, ask Google instead
     3- For each question, get the most voted and accepted answers
     4- Sort answers by vote count and limit them
+    5- Sort answers by local vote (updownvote)
+    6- Summarize answers
     """
 
     questions = answers = None
@@ -31,13 +163,45 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
     else:
         questions, answers = ask_live(query, error_info, cmd_args)
 
-    sorted_answers = sorted(answers, key=attrgetter("score"), reverse=True)[: cmd_args.n_answers]
+    sorted_answers = sorted(answers, key=attrgetter("score"), reverse=True)
+    sorted_answers = sort_by_updownvote(sorted_answers, error_info)[: cmd_args.n_answers]
+
     summarized_answers = []
     links = []
 
     for ans in sorted_answers:
-        markdown_body = html2text(ans.body)
-        summarized_answers.append(markdown_body)
+        # Separate code and text
+        pos = identify_code(ans.body)
+
+        codes, texts = separate_code(ans.body, pos)
+
+        # HTML to text
+        markdown_text = [html2text(text[0]) for text in texts]
+        markdown_code = [html2text(code[0]) for code in codes]
+
+        tmp_codes = [code[0] for code in codes]
+        # Summarize the texts
+        tmp_summarized_text = [getSummary(m) for m in markdown_text]
+
+
+        # Convert sentence to string
+        summarized_text = []
+        for st in tmp_summarized_text:
+            tmp = ""
+            for s in st:
+                tmp += str(s)
+            summarized_text.append(tmp)
+
+        # Join code and text
+        the_answer = replace_code(tmp_codes, summarized_text)
+
+        # Add summarized answer
+        if len(pos) != 0:
+            summarized_answers.append(the_answer)
+
+        else:
+            summarized_answers.append(getSummary(html2text(ans.body)))
+
         links.append(ans.url)
 
     return summarized_answers, sorted_answers, links
@@ -75,6 +239,7 @@ def _ask_google(error_message: str, n_questions: int) -> Tuple[Question, None]:
     # questions_id = [re.findall(r"/\d+/", q)[0][1:-1] for q in questions_url]
 
     return tuple(Question(id=re.findall(r"/\d+/", q)[0][1:-1], has_accepted=None, question_link=q) for q in questions_url)
+
 
 def _get_answer_content(questions: Tuple[Question]) -> Tuple[Answer, None]:
     """Retrieve the most voted and the accepted answers for each question"""
@@ -119,7 +284,7 @@ def _get_answer_content(questions: Tuple[Question]) -> Tuple[Answer, None]:
             continue
 
         accepted = filtered[0]
-        accepted_url = "{qlink}/{id}#{id}".format(question.question_link, accepted["answer_id"], accepted["answer_id"])
+        accepted_url = "{}/{}#{}".format(question.question_link, accepted["answer_id"], accepted["answer_id"])
         answers.append(
             Answer(
                 id=str(accepted["answer_id"]),

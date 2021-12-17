@@ -2,12 +2,33 @@ from pycee.answers import get_answers
 from pycee.errors import handle_error
 from pycee.utils import parse_args, remove_cache, return_answers_for_web
 from pycee.control import get_error_info_from_traceback
+from vote.updownvote import updowndata, write_json, read_json
 import markdown
 import json
 
 from consolemd import Renderer
 
-def create_JSON(so_answers: list, links: list):
+def send_updownvote(solution_link : str ,error_type : str, value : int):
+    """
+    Save or update new vote count in database.
+    """
+
+    # Create a new data set
+    data_set = updowndata(solution_link, error_type, value)
+
+    # Save or update data set in database
+    write_json(data_set)
+
+
+def get_updownvote(solution_link : str ,error_type : str):
+    """
+    Get vote count from database.
+    :return: int
+    """
+    return read_json(solution_link, error_type)
+
+
+def create_JSON(so_answers: list, links: list, error_info: dict):
     """
     Change the data format of solutions and their links to JSON
     :return: JSON
@@ -17,21 +38,27 @@ def create_JSON(so_answers: list, links: list):
     }
 
     for i in range(0, len(so_answers), 1):
-        
+
         ans = ""
         ans += "\n\n**{}**\n\n**Solution {}:**\n\n".format('=' * 40 ,i + 1)
-        ans += so_answers[i]
+
+        for a in so_answers[i]:
+            ans += str(a)
+
         ans += "\n"
         ans = markdown.markdown(ans)
         ans = ans.replace("<p>",  '<p style="font-size:18px;">')
 
         link = '<p><b>\nLink: <a href="{}">{}</a>\n\n\n</b></p>'.format(links[i], links[i])
         link = link.replace("<p>",  '<p style="font-size:18px;">')
-        
-        
+
+
         data = {
             "body": ans,
-            "URL": link
+            "link_text": link,
+            "link": links[i],
+            "error_type": error_info["type"],
+            "score": get_updownvote(link , error_info["type"]),
         }
         data_set["items"].append(data)
 
@@ -86,7 +113,7 @@ def main(_traceback: str, _code: str, _n_answers=0, _colored=False, _json=True):
     so_answers, _, links = get_answers(query, error_info, args)
 
     if _json:
-        return create_JSON(so_answers, links)
+        return create_JSON(so_answers, links, error_info)
 
     else:
         solution = return_answers_for_web(so_answers, links, args)
@@ -114,4 +141,4 @@ def main(_traceback: str, _code: str, _n_answers=0, _colored=False, _json=True):
 #
 #     _code = """print(arr[0])"""
 #
-#     print(main(_traceback, _code, _n_answers=2, _colored=True, _json=True))
+#     print(main(_traceback, _code, _n_answers=10, _colored=True, _json=True))
