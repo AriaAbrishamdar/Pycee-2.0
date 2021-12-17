@@ -46,6 +46,7 @@ def getSummary(sentences):
 def identify_code(the_answer):
     """
     Identify the positions of codes in the answer.
+    example: <pre><code>example_code</code></pre> -> (12, 24, 1)
     :return: positions list
     """
 
@@ -76,7 +77,12 @@ def identify_code(the_answer):
             pos[i][2] = pos[i][1]
             pos[i][1] = tmp
 
-    return pos
+    pre_pos = []
+    for p in pos:
+        if p[2] == 1:
+            pre_pos.append(p)
+
+    return pre_pos
 
 
 def sort_by_updownvote(answers: tuple, error_info: dict):
