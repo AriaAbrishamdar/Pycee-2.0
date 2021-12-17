@@ -153,6 +153,7 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
     3- For each question, get the most voted and accepted answers
     4- Sort answers by vote count and limit them
     5- Sort answers by local vote (updownvote)
+    6- Summarize answers
     """
 
     questions = answers = None
