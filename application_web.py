@@ -7,7 +7,8 @@ import markdown
 import json
 
 from consolemd import Renderer
-
+username = "pycee2.0"
+password = "1234"
 def send_updownvote(solution_link : str ,error_type : str, value : int):
     """
     Save or update new vote count in database.
@@ -27,7 +28,15 @@ def get_updownvote(solution_link : str ,error_type : str):
     """
     return read_json(solution_link, error_type)
 
-
+def show_table (new_username : str , new_password: str):
+    """
+    show the data in the json file 
+    """
+    if new_username == username and new_password == password :
+        print_json()
+    else:
+        print("wrong username or password")
+        
 def create_JSON(so_answers: list, links: list, error_info: dict):
     """
     Change the data format of solutions and their links to JSON

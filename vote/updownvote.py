@@ -46,7 +46,16 @@ def write_json(new_data: dict):
             file.seek(0)
             json.dump(file_data, file, indent=2)
 
-
+def print_json():
+    """
+    print "updowndata.json" 
+    """
+    with open(filename ,'r+')as file :
+        file_data = json.load(file)
+        i = 1
+        for x in file_data['data']:
+            print (str(i)+ "\t" + x['solution_link']+"\t"+x['error_type'])  
+            i = i + 1
 def read_json(solution_link: str, error_type:str):
     """
     Read "updowndata.json" to get vote count for the solution.
