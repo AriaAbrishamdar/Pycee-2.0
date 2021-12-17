@@ -85,6 +85,32 @@ def identify_code(the_answer):
     return pre_pos
 
 
+def separate_code(the_answer, pos):
+    """
+    Separate the code and text in the answer.
+    :return: list of codes and texts
+    """
+
+    code = []
+    text = []
+    index = 0
+
+    for p in pos:
+        start, end = p[0], p[1]
+        for i, c in enumerate(the_answer):
+            if i == start:
+                text.append([the_answer[index:i - len("<pre><code>")]])
+                code.append([the_answer[i:end]])
+                index = end + len("</code></pre>")
+                break
+
+    if len(the_answer) > pos[-1][1]:
+        index = pos[-1][1] + len("</code></pre>")
+        text.append([the_answer[index:]])
+
+    return code, text
+
+
 def sort_by_updownvote(answers: tuple, error_info: dict):
     """
     Sort the answers by updownvote data.
@@ -124,6 +150,7 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
 
     for ans in sorted_answers:
         pos = identify_code(ans.body)
+        separate_code(ans.body, pos)
         markdown_body = html2text(ans.body)
         # summarized_answers.append(markdown_body)
         summarized_answers.append(getSummary(markdown_body))
