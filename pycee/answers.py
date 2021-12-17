@@ -179,6 +179,7 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
         markdown_text = [html2text(text[0]) for text in texts]
         markdown_code = [html2text(code[0]) for code in codes]
 
+        tmp_codes = [code[0] for code in codes]
         # Summarize the texts
         tmp_summarized_text = [getSummary(m) for m in markdown_text]
 
@@ -192,7 +193,7 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
             summarized_text.append(tmp)
 
         # Join code and text
-        the_answer = replace_code(markdown_code, summarized_text)
+        the_answer = replace_code(tmp_codes, summarized_text)
 
         # Add summarized answer
         if len(pos) != 0:
