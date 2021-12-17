@@ -19,6 +19,7 @@ from vote.updownvote import read_json
 from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
 from sumy.summarizers.luhn import LuhnSummarizer
+import markdown
 
 
 def getSummary(sentences):
@@ -100,15 +101,34 @@ def separate_code(the_answer, pos):
         for i, c in enumerate(the_answer):
             if i == start:
                 text.append([the_answer[index:i - len("<pre><code>")]])
-                code.append([the_answer[i:end]])
+                code.append([the_answer[i - len("<pre><code>"):end + len("</code></pre>")]])
                 index = end + len("</code></pre>")
                 break
 
-    if len(the_answer) > pos[-1][1]:
+    if len(pos) > 0 and len(the_answer) > pos[-1][1]:
         index = pos[-1][1] + len("</code></pre>")
         text.append([the_answer[index:]])
 
     return code, text
+
+
+def replace_code(codes, summarized_texts):
+    """
+    Join the codes to the summarized texts
+    and make a string as a answer.
+    :return: Answer as a string
+    """
+    # TODO: who is first ?
+
+    the_answer = ["" * i for i in range(0, len(codes) + len(summarized_texts))]
+
+    for i in range(0, len(summarized_texts)):
+        the_answer[2 * i] = summarized_texts[i]
+
+    for i in range(0, len(codes)):
+        the_answer[2 * i + 1] = codes[i]
+
+    return the_answer
 
 
 def sort_by_updownvote(answers: tuple, error_info: dict):
@@ -149,11 +169,37 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
     links = []
 
     for ans in sorted_answers:
+        # Separate code and text
         pos = identify_code(ans.body)
-        separate_code(ans.body, pos)
-        markdown_body = html2text(ans.body)
-        # summarized_answers.append(markdown_body)
-        summarized_answers.append(getSummary(markdown_body))
+
+        codes, texts = separate_code(ans.body, pos)
+
+        # HTML to text
+        markdown_text = [html2text(text[0]) for text in texts]
+        markdown_code = [html2text(code[0]) for code in codes]
+
+        # Summarize the texts
+        tmp_summarized_text = [getSummary(m) for m in markdown_text]
+
+
+        # Convert sentence to string
+        summarized_text = []
+        for st in tmp_summarized_text:
+            tmp = ""
+            for s in st:
+                tmp += str(s)
+            summarized_text.append(tmp)
+
+        # Join code and text
+        the_answer = replace_code(markdown_code, summarized_text)
+
+        # Add summarized answer
+        if len(pos) != 0:
+            summarized_answers.append(the_answer)
+
+        else:
+            summarized_answers.append(getSummary(html2text(ans.body)))
+
         links.append(ans.url)
 
     return summarized_answers, sorted_answers, links
