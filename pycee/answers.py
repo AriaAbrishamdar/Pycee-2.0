@@ -36,7 +36,7 @@ def getSummary(sentences):
     # numSentences = len(parser.document.sentences)
 
     #halve length and round up
-    length = 5
+    length = 3
 
     summariser = LuhnSummarizer()
     summary = summariser(parser.document, length)
@@ -189,7 +189,7 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
         for st in tmp_summarized_text:
             tmp = ""
             for s in st:
-                tmp += str(s)
+                tmp += markdown.markdown(str(s))
             summarized_text.append(tmp)
 
         # Join code and text
