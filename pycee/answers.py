@@ -36,7 +36,7 @@ def getSummary(sentences):
     # numSentences = len(parser.document.sentences)
 
     #halve length and round up
-    length = 5
+    length = 3
 
     summariser = LuhnSummarizer()
     summary = summariser(parser.document, length)
@@ -146,6 +146,48 @@ def sort_by_updownvote(answers: tuple, error_info: dict):
     return sorted_answers
 
 
+def summarize_answer(sorted_answers):
+    """
+    Summarize the answer
+    :return: summarized answer
+    """
+
+    summarized_answers = []
+
+    for ans in sorted_answers:
+        # Separate code and text
+        pos = identify_code(ans.body)
+
+        codes, texts = separate_code(ans.body, pos)
+
+        # HTML to text
+        markdown_text = [html2text(text[0]) for text in texts]
+        tmp_codes = [code[0] for code in codes]
+
+        # Summarize the texts
+        tmp_summarized_text = [getSummary(m) for m in markdown_text]
+
+        # Convert sentence to string
+        summarized_text = []
+        for st in tmp_summarized_text:
+            tmp = ""
+            for s in st:
+                tmp += markdown.markdown(str(s))
+            summarized_text.append(tmp)
+
+        # Join code and text
+        the_answer = replace_code(tmp_codes, summarized_text)
+
+        # Add summarized answer
+        if len(pos) != 0:
+            summarized_answers.append(the_answer)
+
+        else:
+            summarized_answers.append(getSummary(html2text(ans.body)))
+
+    return summarized_answers
+
+
 def get_answers(query, error_info: dict, cmd_args: Namespace):
     """This coordinate the answer aquisition process. It goes like this:
     1- Use the query to check stackexchange API for related questions
@@ -166,42 +208,10 @@ def get_answers(query, error_info: dict, cmd_args: Namespace):
     sorted_answers = sorted(answers, key=attrgetter("score"), reverse=True)
     sorted_answers = sort_by_updownvote(sorted_answers, error_info)[: cmd_args.n_answers]
 
-    summarized_answers = []
+    summarized_answers = summarize_answer(sorted_answers)
+
     links = []
-
     for ans in sorted_answers:
-        # Separate code and text
-        pos = identify_code(ans.body)
-
-        codes, texts = separate_code(ans.body, pos)
-
-        # HTML to text
-        markdown_text = [html2text(text[0]) for text in texts]
-        markdown_code = [html2text(code[0]) for code in codes]
-
-        tmp_codes = [code[0] for code in codes]
-        # Summarize the texts
-        tmp_summarized_text = [getSummary(m) for m in markdown_text]
-
-
-        # Convert sentence to string
-        summarized_text = []
-        for st in tmp_summarized_text:
-            tmp = ""
-            for s in st:
-                tmp += str(s)
-            summarized_text.append(tmp)
-
-        # Join code and text
-        the_answer = replace_code(tmp_codes, summarized_text)
-
-        # Add summarized answer
-        if len(pos) != 0:
-            summarized_answers.append(the_answer)
-
-        else:
-            summarized_answers.append(getSummary(html2text(ans.body)))
-
         links.append(ans.url)
 
     return summarized_answers, sorted_answers, links
