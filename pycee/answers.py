@@ -22,7 +22,7 @@ from sumy.summarizers.luhn import LuhnSummarizer
 import markdown
 
 
-def getSummary(sentences):
+def getSummary(sentences, number_of_sentence):
     """
     Summarize the answer.
 
@@ -36,7 +36,7 @@ def getSummary(sentences):
     # numSentences = len(parser.document.sentences)
 
     #halve length and round up
-    length = 3
+    length = number_of_sentence
 
     summariser = LuhnSummarizer()
     summary = summariser(parser.document, length)
@@ -89,6 +89,7 @@ def identify_code(the_answer):
 def separate_code(the_answer, pos):
     """
     Separate the code and text in the answer.
+    TODO: Separate the code that starts with "^<pre.*>$"
     :return: list of codes and texts
     """
 
@@ -165,7 +166,12 @@ def summarize_answer(sorted_answers):
         tmp_codes = [code[0] for code in codes]
 
         # Summarize the texts
-        tmp_summarized_text = [getSummary(m) for m in markdown_text]
+        if len(markdown_text) > 2:
+            length = 2
+        else:
+            length = 3
+
+        tmp_summarized_text = [getSummary(m, length) for m in markdown_text]
 
         # Convert sentence to string
         summarized_text = []
@@ -183,7 +189,7 @@ def summarize_answer(sorted_answers):
             summarized_answers.append(the_answer)
 
         else:
-            summarized_answers.append(getSummary(html2text(ans.body)))
+            summarized_answers.append(getSummary(html2text(ans.body), 3))
 
     return summarized_answers
 
