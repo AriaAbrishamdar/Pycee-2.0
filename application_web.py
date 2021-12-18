@@ -41,7 +41,8 @@ def create_JSON(so_answers: list, links: list, error_info: dict):
 
         ans = ""
         # ans += "\n\n**{}**\n\n**Solution {}:**\n\n".format('=' * 40 ,i + 1)
-        ans += '<hr style="height:4px;color:gray;background-color:gray">'
+        ans += '<hr style="height:6px;color:gray;background-color:gray">'
+        ans += '**Solution {}:**\n'.format(i + 1)
 
         for a in so_answers[i]:
             ans += str(a)
