@@ -1,0 +1,69 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<style>
+    th{ 
+        cursor: pointer;
+        color:#fff;
+            }
+</style>
+
+
+<table class="table table-striped">
+    <tr  class="bg-info">
+        <th  class="bg-info" data-colname="error_type" data-order="desc">Error Type &#9650</th>
+        <th  data-colname="solution_link" data-order="desc">Solution Link &#9650</th>
+        <th  data-colname="value" data-order="desc">Value &#9650</th>
+    </tr>
+    <tbody id="myTable">
+        
+    </tbody>
+</table>
+
+
+<script>
+
+var myArray = {{solutions|tojson}}.data;
+
+buildTable(myArray)
+
+
+
+ $('th').on('click', function(){
+     var column = $(this).data('colname')
+     var order = $(this).data('order')
+     var text = $(this).html()
+     text = text.substring(0, text.length - 1);
+     
+     
+     
+     if (order == 'desc'){
+        myArray = myArray.sort((a, b) => a[column] > b[column] ? 1 : -1)
+        $(this).data("order","asc");
+        text += '&#9660'
+     }else{
+        myArray = myArray.sort((a, b) => a[column] < b[column] ? 1 : -1)
+        $(this).data("order","desc");
+        text += '&#9650'
+     }
+
+    $(this).html(text)
+    buildTable(myArray)
+    })
+
+    
+function buildTable(data){
+    var table = document.getElementById('myTable')
+    table.innerHTML = ''
+    for (var i = 0; i < data.length; i++){
+
+        var row = `<tr>
+                        <td>${data[i].error_type}</td>
+                        <td>${data[i].solution_link}</td>
+                        <td>${data[i].value}</td>
+                   </tr>`
+        table.innerHTML += row
+    }
+}
+
+</script>
