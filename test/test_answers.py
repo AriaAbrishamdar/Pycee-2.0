@@ -1,6 +1,14 @@
 import unittest
 
-from pycee.answers import _ask_stackoverflow, _ask_google, _get_answer_content, sort_by_updownvote, getSummary
+from pycee.answers import (
+    _ask_stackoverflow,
+    _ask_google,
+    _get_answer_content,
+    sort_by_updownvote,
+    identify_code,
+    separate_code,
+    summarize_answer
+)
 from pycee.utils import Answer, Question
 
 error_info = {'success_message': 'Success',
@@ -14,6 +22,27 @@ error_info = {'success_message': 'Success',
 
 
 class TestAnswers(unittest.TestCase):
+
+    def test_separate_code(self):
+        the_answer = """<pre><code>input = eval(raw_input)
+</code></pre>"""
+        pos = [[11, 39, 1]]
+        result_codes, result_texts = separate_code(the_answer, pos)
+        expected_result_codes = [['<pre><code>input = eval(raw_input)\n</code></pre>']]
+        expected_result_texts = [[''], ['']]
+
+        self.assertEqual(result_codes, expected_result_codes)
+        self.assertEqual(result_texts, expected_result_texts)
+
+
+    def test_identify_code(self):
+        the_asnwer = """<pre><code>input = eval(raw_input)
+</code></pre>"""
+        result = identify_code(the_asnwer)
+        expected_result = [[11, 35, 1]]
+
+        self.assertEqual(result, expected_result)
+
 
     def test_sort_by_updownvote(self):
         result = sort_by_updownvote(answers=(Answer(id='7098953',
