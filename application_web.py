@@ -2,22 +2,25 @@ from pycee.answers import get_answers
 from pycee.errors import handle_error
 from pycee.utils import parse_args, remove_cache, return_answers_for_web
 from pycee.control import get_error_info_from_traceback
-from vote.updownvote import updowndata, write_json, read_json
+from vote.updownvote import updowndata, write_json, read_json, detail_data
 import markdown
 import json
 
 from consolemd import Renderer
 
-def send_updownvote(solution_link : str ,error_type : str, value : int):
+def send_updownvote(solution_link: str ,error_type: str, value: int, code: str, error: str, ip: str):
     """
     Save or update new vote count in database.
     """
 
+    # Create a new detail item
+    detail_set = detail_data(code, error, ip, value)
+
     # Create a new data set
-    data_set = updowndata(solution_link, error_type, value)
+    data_set = updowndata(solution_link, error_type)
 
     # Save or update data set in database
-    write_json(data_set)
+    write_json(data_set, detail_set)
 
 
 def get_updownvote(solution_link : str ,error_type : str):
