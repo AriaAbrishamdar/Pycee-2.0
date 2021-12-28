@@ -2,7 +2,23 @@ import json
 
 filename = "vote/updowndata.json"
 
-def updowndata(solution_link: str, error_type: str, value: int):
+def detail_data(code: str, error: str, ip: str, score: int):
+    """
+    Create a new detail item.
+    score: 1 for upvote and -1 for downvote.
+    """
+
+    detail = {
+        "code": code,
+        "error": error,
+        "IP": ip,
+        "score": score
+    }
+
+    return detail
+
+
+def updowndata(solution_link: str, error_type: str):
     """
     Create a new item.
     """
@@ -10,31 +26,30 @@ def updowndata(solution_link: str, error_type: str, value: int):
     data = {
         "solution_link": solution_link,
         "error_type": error_type,
-        "value": value
+        "details": []
     }
 
     return data
 
 
-def write_json(new_data: dict):
+def write_json(new_data: dict, new_detail: dict):
     """
     Save or update vote count in database (updowndata.json).
     """
 
     with open(filename, 'r+') as file:
         file_data = json.load(file)
+
+        # Check the new_data is exist or not.
         flag = 0
 
         for x in file_data['data']:
-            if new_data['solution_link'] in x['solution_link'] and new_data['error_type'] in x['error_type']:
-                print("true")
+            if new_data['solution_link'].__eq__(x['solution_link']) and \
+                new_data['error_type'].__eq__(x['error_type']):
                 flag = 1
 
-                if new_data['value'] == 1:
-                    x['value'] = x['value'] + 1
-
-                if new_data['value'] == -1:
-                    x['value'] = x['value'] - 1
+                # Add detail item
+                x['details'].append(new_detail)
 
                 with open(filename, 'w') as file:
                     json.dump(file_data, file, indent=4)
@@ -42,21 +57,37 @@ def write_json(new_data: dict):
                 break
 
         if flag != 1:
+            # Add new detail item to new data
+            new_data['details'].append(new_detail)
+
+            # Add new item to database
             file_data["data"].append(new_data)
+
+            # Save new data in database
             file.seek(0)
             json.dump(file_data, file, indent=2)
 
 
 def read_json(solution_link: str, error_type:str):
     """
-    Read "updowndata.json" to get vote count for the solution.
+    1. Read "updowndata.json".
+    2. Calculate sum of scores in the item with the solution_link and the error_type as value.
+    3. Return the value.
     """
+
+    value = 0
 
     with open(filename, 'r+') as file:
         file_data = json.load(file)
 
         for item in file_data['data']:
-            if item['solution_link'] in solution_link and item['error_type'] in error_type:
-                return item['value']
+            if item['solution_link'].__eq__(solution_link) and \
+                    item['error_type'].__eq__(error_type):
 
-    return 0
+                # Calculate the value
+                for x in item['details']:
+                    value = value + x['score']
+
+                return value
+
+    return value
