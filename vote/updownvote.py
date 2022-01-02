@@ -1,6 +1,6 @@
 import json
 
-filename = "vote/updowndata.json"
+filename = "/home/AriaAbrishamdar/mysite/vote/updowndata.json"
 
 def detail_data(code: str, error: str, ip: str, score: int):
     """
@@ -48,8 +48,22 @@ def write_json(new_data: dict, new_detail: dict):
                 new_data['error_type'].__eq__(x['error_type']):
                 flag = 1
 
+
+                _append = True
+
+                # if the opposite vote exists for the same code, error and IP, remove that vote instead of adding a new vote
+                for i in range(len(x['details'])):
+                    if ((x['details'][i]['code'] == new_detail['code']) and \
+                        (x['details'][i]['error'] == new_detail['error']) and \
+                        (x['details'][i]['IP'] == new_detail['IP']) and \
+                        (x['details'][i]['score'] == (-new_detail['score']))):
+                            del x['details'][i]
+                            _append = False
+                            break
+
                 # Add detail item
-                x['details'].append(new_detail)
+                if (_append):
+                    x['details'].append(new_detail)
 
                 with open(filename, 'w') as file:
                     json.dump(file_data, file, indent=4)
@@ -81,8 +95,7 @@ def read_json(solution_link: str, error_type:str):
         file_data = json.load(file)
 
         for item in file_data['data']:
-            if item['solution_link'].__eq__(solution_link) and \
-                    item['error_type'].__eq__(error_type):
+            if item['solution_link'] in solution_link and item['error_type'] in error_type:
 
                 # Calculate the value
                 for x in item['details']:
