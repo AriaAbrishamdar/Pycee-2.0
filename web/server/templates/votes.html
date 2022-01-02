@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
 <style>
-    th{ 
+    th{
         cursor: pointer;
         color:#fff;
             }
@@ -13,17 +13,37 @@
     <tr  class="bg-info">
         <th  class="bg-info" data-colname="error_type" data-order="desc">Error Type &#9650</th>
         <th  data-colname="solution_link" data-order="desc">Solution Link &#9650</th>
-        <th  data-colname="value" data-order="desc">Value &#9650</th>
+        <th  data-colname="score" data-order="desc">Score &#9650</th>
+        <td data-colname="details"></td>
     </tr>
     <tbody id="myTable">
-        
+
+    </tbody>
+</table>
+
+<br>
+<br>
+<br>
+
+<table class="table table-striped">
+    <tr  class="bg-info">
+        <th  class="bg-info" data-colname="code" data-order="desc">Code &#9650</th>
+        <th  data-colname="error" data-order="desc">Error &#9650</th>
+        <th  data-colname="ip" data-order="desc">IP &#9650</th>
+        <th  data-colname="value" data-order="desc">Value &#9650</th>
+    </tr>
+    <tbody id="detailsTable">
+
     </tbody>
 </table>
 
 
 <script>
 
+var detailsTableArray = [];
+
 var myArray = {{solutions|tojson}}.data;
+
 
 buildTable(myArray)
 
@@ -34,33 +54,71 @@ buildTable(myArray)
      var order = $(this).data('order')
      var text = $(this).html()
      text = text.substring(0, text.length - 1);
-     
-     
-     
-     if (order == 'desc'){
-        myArray = myArray.sort((a, b) => a[column] > b[column] ? 1 : -1)
-        $(this).data("order","asc");
-        text += '&#9660'
-     }else{
-        myArray = myArray.sort((a, b) => a[column] < b[column] ? 1 : -1)
-        $(this).data("order","desc");
-        text += '&#9650'
+
+
+     if ((column == 'error_type') || (column == 'solution_link')  || (column == 'score')) {
+
+         if (order == 'desc'){
+            myArray = myArray.sort((a, b) => a[column] > b[column] ? 1 : -1)
+            $(this).data("order","asc");
+            text += '&#9660'
+         }else{
+            myArray = myArray.sort((a, b) => a[column] < b[column] ? 1 : -1)
+            $(this).data("order","desc");
+            text += '&#9650'
+         }
+     }
+
+     else if ((column == 'code') || (column == 'error')  || (column == 'ip') || (column == 'value')) {
+
+         if (order == 'desc'){
+            detailsTableArray = detailsTableArray.sort((a, b) => a[column] > b[column] ? 1 : -1)
+            $(this).data("order","asc");
+            text += '&#9660'
+         }else{
+            detailsTableArray = detailsTableArray.sort((a, b) => a[column] < b[column] ? 1 : -1)
+            $(this).data("order","desc");
+            text += '&#9650'
+         }
      }
 
     $(this).html(text)
     buildTable(myArray)
     })
 
-    
+
+
+
+
 function buildTable(data){
     var table = document.getElementById('myTable')
     table.innerHTML = ''
     for (var i = 0; i < data.length; i++){
 
+        var value = 0
+        for (var j=0; j<data[i].details.length; j++) {
+            value = value + data[i].details[j].score
+        }
+
         var row = `<tr>
                         <td>${data[i].error_type}</td>
                         <td>${data[i].solution_link}</td>
-                        <td>${data[i].value}</td>
+                        <td>${value}</td>
+                        <td><button class="editbtn" onclick=" detailsTableArray = myArray[${i}].details; buildTable(myArray);">details</button></td>
+                   </tr>`
+        table.innerHTML += row
+    }
+
+
+    var table = document.getElementById('detailsTable')
+    table.innerHTML = ''
+    for (var i = 0; i < detailsTableArray.length; i++){
+        console.log(detailsTableArray[i].error);
+        var row = `<tr>
+                        <td><pre>${detailsTableArray[i].code}</pre></td>
+                        <td><pre>${detailsTableArray[i].error}</pre></td>
+                        <td>${detailsTableArray[i].IP}</td>
+                        <td>${detailsTableArray[i].score}</td>
                    </tr>`
         table.innerHTML += row
     }
