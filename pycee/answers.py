@@ -250,9 +250,12 @@ def _ask_google(error_message: str, n_questions: int) -> Tuple[Question, None]:
     )[:n_questions]
 
     # parse questions id from each url path
-    # re.findall will return something like '/666/' so the
-    # [1:-1] slicing can remove these slashes
+    # re.findall will return something like '/666/' or '/666' so,
+    # we add a "/" in the end of the question url then,
+    # [1:-1] slicing can remove these slashes to get the question id
     # questions_id = [re.findall(r"/\d+/", q)[0][1:-1] for q in questions_url]
+
+    questions_url = [q + "/" for q in questions_url]
 
     return tuple(Question(id=re.findall(r"/\d+/", q)[0][1:-1], has_accepted=None, question_link=q) for q in questions_url)
 
