@@ -1,3 +1,18 @@
+function get_ip() {
+    var url = "https://api.ipify.org/";
+    var ip_request = new XMLHttpRequest();
+    ip_request.open("GET", url);
+
+    ip_request.onreadystatechange = function() {
+        if (ip_request.readyState === 4) {
+            user_ip = ip_request.response;
+            wait_for_run_button();
+        }
+    };
+
+    ip_request.send();
+}
+
 function wait_for_run_button() {
 
     var element = document.getElementById("run-btn");
@@ -32,8 +47,10 @@ function upvote(index) {
     var type = "upvote";
     var link = solution_links[index];
     var value = 1;
+    var code = user_code;
+    var error = user_error;
     request.open("POST", 'https://ariaabrishamdar.pythonanywhere.com/', true);
-    var msg = { type, error_type, link, value };
+    var msg = { type, error_type, link, value, code, error, user_ip };
     var msgjson = JSON.stringify(msg);
     request.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
     request.send(msgjson);
@@ -74,8 +91,10 @@ function downvote(index) {
     var type = "downvote";
     var link = solution_links[index];
     var value = -1;
+    var code = user_code;
+    var error = user_error;
     request.open("POST", 'https://ariaabrishamdar.pythonanywhere.com/', true);
-    var msg = { type, error_type, link, value };
+    var msg = { type, error_type, link, value, code, error, user_ip };
     var msgjson = JSON.stringify(msg);
     request.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
     request.send(msgjson);
@@ -128,6 +147,8 @@ function check_for_changes() {
     var editor = document.getElementById("editor");
     var code = editor.getElementsByClassName("ace_layer ace_text-layer")[0].innerText;
 
+    user_code = code;
+    user_error = error_message;
 
     setTimeout(send_text_to_server.bind(null, error_message, code), 250);
 }
@@ -206,10 +227,13 @@ function set_output_text(text) {
 
 
 
-wait_for_run_button()
-
 document.getElementById("d").style.height = "calc(100% - 2.5px)";
 
 var error_type = "";
 var solution_links = [];
 var solution_values = [];
+var user_ip = "-";
+var user_code = "-";
+var user_error = "-";
+
+get_ip()
