@@ -47,7 +47,10 @@ def home():
             error_type = str(msg["error_type"])
             link = str(msg["link"])
             value = msg["value"]
-            application_web.send_updownvote(link, error_type, value);
+            code = str(msg["code"])
+            error = str(msg["error"])
+            ip = str(msg["user_ip"])
+            application_web.send_updownvote(link, error_type, value, code , error, ip);
             return  { "successful": [1] }
 
         else:
