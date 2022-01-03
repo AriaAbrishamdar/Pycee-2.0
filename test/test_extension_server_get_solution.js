@@ -4,7 +4,7 @@ function test_get_solutions(error, code) {
 
     request.onreadystatechange = function() {
         if (request.readyState === 4) {
-            console.log(request.response.data.length);
+            console.log(request.response.items.length);
         }
     }
     var number_of_solutions = 3;
