@@ -43,7 +43,7 @@ def write_json(new_data: dict, new_detail: dict):
         # Check the new_data is exist or not.
         flag = 0
 
-        for x in file_data['data']:
+        for x in file_data['items']:
             if new_data['solution_link'].__eq__(x['solution_link']) and \
                 new_data['error_type'].__eq__(x['error_type']):
                 flag = 1
@@ -75,7 +75,7 @@ def write_json(new_data: dict, new_detail: dict):
             new_data['details'].append(new_detail)
 
             # Add new item to database
-            file_data["data"].append(new_data)
+            file_data["items"].append(new_data)
 
             # Save new data in database
             file.seek(0)
@@ -94,7 +94,7 @@ def read_json(solution_link: str, error_type:str):
     with open(filename, 'r+') as file:
         file_data = json.load(file)
 
-        for item in file_data['data']:
+        for item in file_data['items']:
             if item['solution_link'] in solution_link and item['error_type'] in error_type:
 
                 # Calculate the value
