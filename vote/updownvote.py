@@ -1,6 +1,6 @@
 import json
 
-filename = "/home/AriaAbrishamdar/mysite/vote/updowndata.json"
+filename = "vote/updowndata.json"
 
 def detail_data(code: str, error: str, ip: str, score: int):
     """
