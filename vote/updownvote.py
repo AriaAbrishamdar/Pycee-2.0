@@ -1,6 +1,6 @@
 import json
 
-filename = "vote/updowndata.json"
+filename = "/home/AriaAbrishamdar/mysite/vote/updowndata.json"
 
 def detail_data(code: str, error: str, ip: str, score: int):
     """
@@ -37,7 +37,7 @@ def write_json(new_data: dict, new_detail: dict):
     Save or update vote count in database (updowndata.json).
     """
 
-    with open(filename, 'r+') as file:
+    with open(filename, 'r') as file:
         file_data = json.load(file)
 
         # Check the new_data is exist or not.
@@ -65,9 +65,6 @@ def write_json(new_data: dict, new_detail: dict):
                 if (_append):
                     x['details'].append(new_detail)
 
-                with open(filename, 'w') as file:
-                    json.dump(file_data, file, indent=4)
-
                 break
 
         if flag != 1:
@@ -77,9 +74,10 @@ def write_json(new_data: dict, new_detail: dict):
             # Add new item to database
             file_data["items"].append(new_data)
 
-            # Save new data in database
-            file.seek(0)
-            json.dump(file_data, file, indent=2)
+
+
+    with open(filename, 'w') as file:
+        json.dump(file_data, file, indent=4)
 
 
 def read_json(solution_link: str, error_type:str):
@@ -104,3 +102,4 @@ def read_json(solution_link: str, error_type:str):
                 return value
 
     return value
+
