@@ -42,7 +42,7 @@
 
 var detailsTableArray = [];
 
-var myArray = {{solutions|tojson}}.data;
+var myArray = {{solutions|tojson}}.items;
 
 
 buildTable(myArray)
@@ -50,8 +50,8 @@ buildTable(myArray)
 
 
  $('th').on('click', function(){
-     var column = $(this).data('colname')
-     var order = $(this).data('order')
+     var column = $(this).items('colname')
+     var order = $(this).items('order')
      var text = $(this).html()
      text = text.substring(0, text.length - 1);
 
@@ -60,11 +60,11 @@ buildTable(myArray)
 
          if (order == 'desc'){
             myArray = myArray.sort((a, b) => a[column] > b[column] ? 1 : -1)
-            $(this).data("order","asc");
+            $(this).items("order","asc");
             text += '&#9660'
          }else{
             myArray = myArray.sort((a, b) => a[column] < b[column] ? 1 : -1)
-            $(this).data("order","desc");
+            $(this).items("order","desc");
             text += '&#9650'
          }
      }
@@ -73,11 +73,11 @@ buildTable(myArray)
 
          if (order == 'desc'){
             detailsTableArray = detailsTableArray.sort((a, b) => a[column] > b[column] ? 1 : -1)
-            $(this).data("order","asc");
+            $(this).items("order","asc");
             text += '&#9660'
          }else{
             detailsTableArray = detailsTableArray.sort((a, b) => a[column] < b[column] ? 1 : -1)
-            $(this).data("order","desc");
+            $(this).items("order","desc");
             text += '&#9650'
          }
      }
